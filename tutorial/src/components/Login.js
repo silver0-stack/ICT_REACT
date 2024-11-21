@@ -17,7 +17,7 @@ const Login=()=> {
 
     // 서버로 로그인 요청 보내기
     try{
-      const response = await fetch('http://localhost:8888/first/login', {
+      const response = await fetch('http://localhost:8888/first/api/members/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
