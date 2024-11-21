@@ -35,18 +35,21 @@ const SignUp = () => {
       navigate('/signup-response', { state: {message: data.message || '회원가입에 실패했습니다. 다시 시도해주세요.' }});
     }
     }catch(error){
-      
+      console.error('회원가입 요청 중 오류 발생: ', error);
+      navigate('/signup-response', { state: { message: '네트워크 오류가 발생했습니다. 다시 시도해주세요.'}});
     }
-  }
+  };
 
   return (
     <div style={{ padding: "20px", maxWidth: "300px", margin: "auto" }}>
       <h2>Sign Up</h2>
-      <form>
+      <form onSubmit = {handleSubmit}>
         <div style={{ marginBottom: "10px" }}>
           <label>Email:</label>
           <input
             type="email"
+            value={email}
+            onChange={(e)=> setEmail(e.target.value)}
             required
             style={{ width: "100%", padding: "8px", marginTop: "5px" }}
           />
@@ -55,6 +58,8 @@ const SignUp = () => {
           <label>Password:</label>
           <input
             type="password"
+            value={email}
+            onChange={(e) => setPassword(e.target.value)}
             required
             style={{ width: "100%", padding: "8px", marginTop: "5px" }}
           />
