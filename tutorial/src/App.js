@@ -10,6 +10,7 @@ import Navbar from './components/NavBar';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
+import LoginResponse from './components/LoginResponse'; // 새로 추가된 컴포넌트
 
 
 function App() {
@@ -22,8 +23,10 @@ function App() {
           <Route path="/about" element={<h1>About Us</h1>} />
           <Route path="/login" element={<Login />}/>
           <Route path="/signup" element={<SignUp/>} />
+          <Route path="/login-response" element={<LoginResponse />} /> 
         </Routes>
       </div>
+      <Footer/>
     </Router>
   );
 }
