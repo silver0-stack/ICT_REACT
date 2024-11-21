@@ -1,11 +1,15 @@
 /* 
 사용자가 로그인할 수 있는 폼을 제공
 회원가입 링크도 텍스트로 추가
+백엔드와 연동하여 인증 토큰을 받아 저장한다.
 */ 
 // src/components/Login.js
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from "../context/AuthContext";
+import axios from 'axios';
+ 
 
 const Login = () => {
   const [email, setEmail] = useState(''); 

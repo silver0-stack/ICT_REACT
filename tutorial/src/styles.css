@@ -9,4 +9,33 @@ body {
   h1, h2 {
     color: #333;
   }
-  
+  /* src/styles.css */
+
+.navbar {
+  padding: 10px;
+  background: #333;
+  color: #fff;
+}
+
+.nav-list {
+  list-style: none;
+  display: flex;
+  justify-content: space-around;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link,
+.nav-link-button {
+  color: #fff;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.nav-link:hover,
+.nav-link-button:hover {
+  color: #4caf50;
+}

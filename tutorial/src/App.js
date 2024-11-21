@@ -4,32 +4,45 @@
 
 // src/App.js
 
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Navbar from './components/NavBar';
-import Footer from './components/Footer';
-import Login from './components/Login';
-import SignUp from './components/SignUp';
-import LoginResponse from './components/LoginResponse'; 
-import SignUpResponse from './components/SignUpResponse';
-
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/NavBar";
+import Footer from "./components/Footer";
+import Login from "./components/Login";
+import SignUp from "./components/SignUp";
+import LoginResponse from "./components/LoginResponse";
+import SignUpResponse from "./components/SignUpResponse";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Home from "./components/Home";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
-    <Router>
-      <Navbar />
-      <div style={{ minHeight: '80vh', padding: '20px' }}>
-        <Routes>
-          <Route path="/" element={<h1>Welcome to the Home Page!</h1>} />
-          <Route path="/about" element={<h1>About Us</h1>} />
-          <Route path="/login" element={<Login />}/>
-          <Route path="/signup" element={<SignUp/>} />
-          <Route path="/login-response" element={<LoginResponse />} /> 
-          <Route path="/signup-response" element={<SignUpResponse />} /> 
-        </Routes>
-      </div>
-      <Footer/>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Navbar />
+        <div style={{ minHeight: "80vh", padding: "20px" }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<h1>About Us</h1>} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login-response" element={<LoginResponse />} />
+            <Route path="/signup-response" element={<SignUpResponse />} />
+            {/* 보호된 라우트 예시 */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <h1>Dashboard</h1>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+        <Footer />
+      </Router>
+    </AuthProvider>
   );
 }
 
