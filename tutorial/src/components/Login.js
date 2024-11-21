@@ -13,7 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 폼 제출 시 페이지 새로고침을 방지
+    e.preventDefault(); // 폼 제출 시 페이지 새로고침을 방지, 이를 통해 상태를 유지하면서 비동기적으로 요청을 보낼 수 있음
 
     // 서버로 로그인 요청 보내기
     try {
