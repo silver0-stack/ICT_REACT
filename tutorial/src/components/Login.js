@@ -12,71 +12,77 @@ import axios from 'axios';
  
 
 const Login = () => {
+  const { setAuth, axiosInstance } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // 폼 제출 시 페이지 새로고침을 방지, 이를 통해 상태를 유지하면서 비동기적으로 요청을 보낼 수 있음
 
     // 서버로 로그인 요청 보내기
     try {
-      const response = await fetch('http://localhost:8888/first/api/members/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }), // 수정된 부분
+      const response = await axiosInstance.post('/login', {
+        userId: email, //  백엔드의 User DTO에 맞게 필드명 조정
+        userPwd: password,
       });
 
-      const data = await response.json();
 
-      if (response.ok) {
-        // 로그인 성공 시 메시지 전달
-        navigate('/login-response', { state: { message: data.message || '로그인에 성공했습니다!' } });
-      } else {
-        // 로그인 실패 시 메시지 전달
-        navigate('/login-response', { state: { message: data.message || '로그인에 실패했습니다.' } });
+      if (response.data.success) {
+        // 로그인 성공 시
+        const{ accessToken, refreshToken, member } = response.data.data;
+        setAuth({
+          accessToken,
+          refreshToken,
+          user: member,
+        });
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('user', JSON.stringify(member));
+        navigate('/dashboard'); // 로그인 성공 시 대시보드로 이동
+      }else{
+        // 로그인 실패 시
+        setError(response.data.message || '로그인에 실패했습니다.');
       }
     } catch (error) {
-      console.error('로그인 요청 중 오류 발생:', error);
-      navigate('/login-response', { state: { message: '네트워크 오류가 발생했습니다. 나중에 다시 시도해주세요.' } });
+      console.error(error);
+      setError(error.response?.data?.message || '로그인 중 오류가 발생했습니다.');
     }
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '300px', margin: 'auto' }}>
+    <div className="auth-container">
       <h2>Login</h2>
+      {error && <p className="error-message">{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
+        <div className="form-group">
           <label>Email:</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }} 
-          />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Password:</label>
-          <input 
-            type="password"
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)}
-            required 
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }} 
-          />
-        </div>
-        <button 
-          type="submit" 
-          style={{ width: '100%', padding: '10px', backgroundColor: '#4CAF50', color: '#fff' }}
-        >
-          Login
-        </button>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="Enter your email"
+            />
+            </div>
+            <div className="form-group">
+              <label>Password:</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e)=>setPassword(e.target.value)}
+                required
+                placeholder="Enter your password"
+                />
+            </div>
+            <button type="submit" className="submit-button">
+              Login
+            </button>
       </form>
-      <p style={{ textAlign: 'center', marginTop: '10px' }}>
-        Don't have an account? <Link to="/signup">Sign up</Link>
+      <p>
+        Don't have an account? <Link to="/signup">Sign Up</Link>
       </p>
     </div>
   );
