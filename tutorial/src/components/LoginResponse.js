@@ -11,10 +11,10 @@ const LoginResponse = () => {
   };
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
+    <div className="response-container">
       <h2>로그인 결과</h2>
       <p>{message}</p>
-      <Link to="/" style={{ color: "#4CAF50", textDecoration: "none" }}>
+      <Link to="/" className="response-link">
         홈으로 돌아가기
       </Link>
     </div>
