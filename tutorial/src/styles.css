@@ -63,3 +63,9 @@ body {
 .response-link:hover {
   text-decoration: underline;
 }
+
+/* src/styles.css */
+
+.home-container {
+  text-align: center;
+}

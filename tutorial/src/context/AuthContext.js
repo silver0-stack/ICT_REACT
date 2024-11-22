@@ -1,4 +1,3 @@
-/* 인증 상태를 전역에서 관리하기 위해 Context API를 사용해야 한다. 인증 정보 관리하는 파일 */
 // src/context/AuthContext.js
 
 import React, { createContext, useState, useEffect } from 'react';
@@ -48,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       ) {
         originalRequest._retry = true;
         try {
-          const response = await axios.post('http://localhost:8888/first/api/members/refresh-token', {
+          const response = await axiosInstance.post('/refresh-token', {
             refreshToken: auth.refreshToken,
           });
           const { accessToken, refreshToken, member } = response.data.data;

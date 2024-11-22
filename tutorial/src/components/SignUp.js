@@ -9,7 +9,6 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
-import axios from 'axios';
 
 
 const SignUp = () => {
@@ -32,6 +31,8 @@ const SignUp = () => {
     const { name, value, files } = e.target;
     if (name === 'photoFile') {
       setFormData({ ...formData, photoFile: files[0] });
+    }else{
+      setFormData({ ...formData, [name]: value});
     }
   };
 
@@ -42,7 +43,7 @@ const SignUp = () => {
     // 서버로 회원가입 요청 보내기
     try {
       // ID 중복 체크
-      const idCheckResponse = await axios.post('http://localhost:8888/first/api/members/idchk', null, {
+      const idCheckResponse = await axiosInstance.post('/idchk', null, {
         params: { userId: formData.userId },
       });
 
@@ -94,7 +95,7 @@ const SignUp = () => {
   return (
     <div className="auth-container">
       <h2>Sign Up</h2>
-      {error && <p className="error-message">{error</p>}
+      {error && <p className="error-message">{error}</p>}
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div className="form-group">
           <label>ID:</label>
