@@ -6,6 +6,7 @@
 import React, { createContext, useState } from 'react'; // React와 필요한 Hook들을 import
 import jwt_decode from 'jwt-decode'; // JWT 토큰을 디코딩하기 위한 라이브러리
 import axios from 'axios'; // HTTP 요청을 위한 Axios 라이브러리
+import { toast } from 'react-toastify';
 
 // 인증 관련 데이터를 전달할 Context를 생성
 export const AuthContext = createContext();
@@ -84,6 +85,7 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
           // Refresh Token이 만료되었거나 유효하지 않을 경우 처리
           console.error('Refresh Token 만료 또는 유효하지 않음');
+          toast.error('세션이 만료되었습니다. 다시 로그인해주세요.');
 
           // 인증 상태 초기화
           setAuth({
