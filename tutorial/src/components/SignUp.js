@@ -9,6 +9,7 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
+import axios from 'axios';
 
 
 const SignUp = () => {
@@ -43,7 +44,7 @@ const SignUp = () => {
     // 서버로 회원가입 요청 보내기
     try {
       // ID 중복 체크
-      const idCheckResponse = await axiosInstance.post('/idchk', null, {
+      const idCheckResponse = await axios.post('http://localhost:8888/first/api/members/idchk', null, {
         params: { userId: formData.userId },
       });
 
@@ -73,12 +74,7 @@ const SignUp = () => {
 
 
     try {
-      const response = await axiosInstance.post('/enroll', data, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
+      const response = await axiosInstance.post('/enroll', data);
 
       if (response.data.success) {
         // 회원가입 성공 시 메시지 전달
@@ -101,7 +97,7 @@ const SignUp = () => {
           <label>ID:</label>
           <input
             type="text"
-            name="userId"
+            name="userId" // 정확히 'userId'로 설정
             value={formData.userId}
             onChange={handleChange}
             required
