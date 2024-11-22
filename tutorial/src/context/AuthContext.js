@@ -1,3 +1,6 @@
+/* 애플리케이션 전반에서 사용자 인증 상태(로그인, 로그아웃 등)을 관리하거
+서버와의 통신을 돕기 위해 만들어진 Context 다.
+로그인 상태, 토큰 관리, 서버 요청 등을 중앙 처리할 수 있다.*/
 // src/context/AuthContext.js
 
 import React, { createContext, useState, useEffect } from 'react';
