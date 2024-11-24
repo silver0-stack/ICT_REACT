@@ -1,0 +1,15 @@
+/* src/components/NavBar.css */
+
+.navbar .dropdown-toggle {
+    padding: 0;
+  }
+  
+  .navbar .dropdown-toggle img {
+    border: 2px solid #007bff; /* 프로필 사진 테두리 색상 */
+  }
+  
+  .navbar .dropdown-menu {
+    right: 0;
+    left: auto;
+  }
+  

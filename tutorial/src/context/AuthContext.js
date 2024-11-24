@@ -3,7 +3,7 @@
 로그인 상태, 토큰 관리, 서버 요청 등을 중앙 처리할 수 있다.*/
 // src/context/AuthContext.js
 
-import React, { createContext, useState } from 'react'; // React와 필요한 Hook들을 import
+import React, { createContext, useEffect, useState } from 'react'; // React와 필요한 Hook들을 import
 import jwt_decode from 'jwt-decode'; // JWT 토큰을 디코딩하기 위한 라이브러리
 import axios from 'axios'; // HTTP 요청을 위한 Axios 라이브러리
 import { toast } from 'react-toastify';
@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
   // Axios 인스턴스 생성. baseURL을 설정하여 모든 요청의 기본 URL을 지정
   const axiosInstance = axios.create({
     baseURL: 'http://localhost:8888/first/api/members', // 백엔드 API URL
+    // 'Content-Type'을 수동으로 설정하지 않음
   });
 
   // 요청 인터셉터: 모든 Axios 요청 전에 실행되어 Access Token을 헤더에 추가
@@ -124,6 +125,32 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+
+
+  // auth 상태가 변경될 때마다 LocalStorage를 업데이트!!
+  useEffect(()=>{
+    if(auth.accessToken){
+      localStorage.setItem('accessToken', auth.accessToken);
+    }else{
+      localStorage.removeItem('accessToken');
+    }
+
+    if(auth.refreshToken){
+      localStorage.setItem('refreshToken', auth.refreshToken);
+    }else{
+      localStorage.removeItem('refreshToken');
+    }
+
+    if(auth.user){
+      localStorage.setItem('user', JSON.stringify(auth.user));
+    }else{
+      localStorage.removeItem('user');
+    }
+  }, [auth]);
+
+
+
+  
   // AuthContext.Provider를 통해 자식 컴포넌트들에게 auth 상태와 관련 함수들을 전달
   return (
     <AuthContext.Provider value={{ auth, setAuth, axiosInstance, logout }}>

@@ -8,13 +8,14 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from "./components/NavBar";
 import Footer from "./components/Footer";
-import Login from "./components/Login";
-import SignUp from "./components/SignUp";
-import LoginResponse from "./components/LoginResponse";
-import SignUpResponse from "./components/SignUpResponse";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import LoginResponse from "./pages/LoginResponse";
+import SignUpResponse from "./pages/SignUpResponse";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Home from "./components/Home";
+import Home from "./pages/Home";
 import { AuthProvider } from "./context/AuthContext";
+import MyPage from './pages/MyPage';
 
 function App() {
   return (
@@ -29,6 +30,14 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login-response" element={<LoginResponse />} />
             <Route path="/signup-response" element={<SignUpResponse />} />
+            <Route
+            path="/mypage"
+            element={
+              <ProtectedRoute>
+                <MyPage />
+              </ProtectedRoute>
+            }
+          />
             {/* 보호된 라우트 예시 */}
             <Route
               path="/dashboard"
@@ -39,6 +48,7 @@ function App() {
               }
             />
           </Routes>
+          
         </div>
         <Footer />
       </Router>
