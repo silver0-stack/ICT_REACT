@@ -1,6 +1,6 @@
 /* 마지막으로, index.js파일을 만들어 React앱을 DOM에 렌더링한다*/
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './styles.css';
 import App from './App';
 

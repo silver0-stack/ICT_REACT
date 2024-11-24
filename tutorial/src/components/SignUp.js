@@ -48,7 +48,7 @@ const SignUp = () => {
         params: { userId: formData.userId },
       });
 
-      if (idCheckResponse.data.data === 'dub') {
+      if (idCheckResponse.data.data === 'dup') {
         setError('이미 사용 중인 ID입니다.');
         return;
       }
