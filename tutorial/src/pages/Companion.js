@@ -5,7 +5,6 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Placeholder } from 'react-bootstrap';
 
 const Companion = () => {
     const [message, setMessage] = useState('');

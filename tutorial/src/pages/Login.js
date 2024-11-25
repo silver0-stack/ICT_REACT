@@ -41,7 +41,7 @@ const Login = () => {
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('user', JSON.stringify(member));
-        navigate('/dashboard'); // 로그인 성공 시 대시보드로 이동
+        navigate('/'); // 로그인 성공 시 대시보드로 이동
       }else{
         // 로그인 실패 시
         setError(response.data.message || '로그인에 실패했습니다.');

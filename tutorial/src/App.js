@@ -16,7 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import { AuthProvider } from "./context/AuthContext";
 import MyPage from './pages/MyPage';
-import Companion from "./pages/companion";
+import Companion from "./pages/Companion";
 
 function App() {
   return (
@@ -32,13 +32,13 @@ function App() {
             <Route path="/login-response" element={<LoginResponse />} />
             <Route path="/signup-response" element={<SignUpResponse />} />
             <Route
-            path="/mypage"
-            element={
-              <ProtectedRoute>
-                <MyPage />
-              </ProtectedRoute>
-            }
-          />
+              path="/mypage"
+              element={
+                <ProtectedRoute>
+                  <MyPage />
+                </ProtectedRoute>
+              }
+            />
             {/* 보호된 라우트 예시 */}
             <Route
               path="/dashboard"
@@ -48,16 +48,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          </Routes>
 
-          <Route
-            path="/companion"
-            element={
-              <ProtectedRoute>
-                <Companion />
-              </ProtectedRoute>
-            } />
-          
+
+            <Route
+              path="/companion"
+              element={
+                <ProtectedRoute>
+                  <Companion />
+                </ProtectedRoute>
+              } />
+          </Routes>
         </div>
         <Footer />
       </Router>
