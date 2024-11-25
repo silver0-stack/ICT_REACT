@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import { AuthProvider } from "./context/AuthContext";
 import MyPage from './pages/MyPage';
+import Companion from "./pages/companion";
 
 function App() {
   return (
@@ -48,6 +49,14 @@ function App() {
               }
             />
           </Routes>
+
+          <Route
+            path="/companion"
+            element={
+              <ProtectedRoute>
+                <Companion />
+              </ProtectedRoute>
+            } />
           
         </div>
         <Footer />

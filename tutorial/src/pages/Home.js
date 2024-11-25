@@ -3,6 +3,7 @@
 
 import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
     const { auth } = useContext(AuthContext);
@@ -11,7 +12,11 @@ const Home = () => {
         <div className="home-container">
             <h1>Welcome to the Home Page!</h1>
             {auth.user? (
-                <p>안녕하세요, {auth.user.userName}님!</p>
+                <><p>안녕하세요, {auth.user.userName}님!</p><nav>
+                    <ul>
+                        <li><Link to="/companion">말동무</Link></li>
+                    </ul>
+                </nav></>
             ): (
                 <p>Please <a href="/login">login</a> or <a href="/signup">sign up</a>.</p>
             )}
