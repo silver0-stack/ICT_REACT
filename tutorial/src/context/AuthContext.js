@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   // Axios 인스턴스 생성. baseURL을 설정하여 모든 요청의 기본 URL을 지정
   const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8888/first/api/members', // 백엔드 API URL
+    baseURL: 'http://localhost:8888/first', // 백엔드 API URL
     // 'Content-Type'을 수동으로 설정하지 않음
   });
 
