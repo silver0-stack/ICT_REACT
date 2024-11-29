@@ -10,13 +10,15 @@ const MyPage = () => {
   
   // 올바른 구조 분해 할당 사용
   const [userData, setUserData] = useState({
-    userId: '',
-    userName: '',
+    memId: '',
+    memPw: '',
+    memName: '',
     gender: '',
     age: 0,
-    phone: '',
-    email: '',
-    photoFileName: '',
+    memCellphone: '',
+    memPhone: '',
+    memEmail: '',
+    memRnn: '',
     // 필요한 다른 필드 추가
   });
   
@@ -26,13 +28,14 @@ const MyPage = () => {
   useEffect(() => {
     if (auth.user) {
       setUserData({
-        userId: auth.user.userId,
-        userName: auth.user.userName,
+        memId: auth.user.memId, // 'userId' → 'memId'
+        memName: auth.user.memName, // 'userName' → 'memName'
         gender: auth.user.gender,
         age: auth.user.age,
-        phone: auth.user.phone,
-        email: auth.user.email,
-        photoFileName: auth.user.photoFileName, // 서버에서 반환한 전체 파일명 포함(userId_originalFileName.ext)
+        memCellphone: auth.user.memCellphone, // 'phone' → 'memCellphone'
+        memPhone: auth.user.memPhone, // 'phone' → 'memPhone'
+        memEmail: auth.user.memEmail, // 'email' → 'memEmail'
+        memRnn: auth.user.memRnn, // 'rnn' → 'memRnn'
         // 필요한 다른 필드 추가
       });
     }
@@ -68,15 +71,17 @@ const MyPage = () => {
     }
   
     const formData = new FormData();
-    formData.append('userName', userData.userName);
+    formData.append('memName', userData.memName);
     formData.append('gender', userData.gender);
     formData.append('age', userData.age);
-    formData.append('phone', userData.phone);
-    formData.append('email', userData.email);
+    formData.append('memCellphone', userData.memCellphone);
+    formData.append('memPhone', userData.memPhone);
+    formData.append('memEmail', userData.memEmail);
+    formData.append('memRnn', userData.memRnn);
   
     // 비밀번호 변경 시 추가
-    if (userData.userPwd) {
-      formData.append('userPwd', userData.userPwd);
+    if (userData.memPw) {
+      formData.append('memPw', userData.memPw);
     }
   
     if (profileImage) {
@@ -85,7 +90,7 @@ const MyPage = () => {
   
     try {
       // PUT 요청 시 파일명 포함하지 않음
-      const response = await axiosInstance.put(`${userData.userId}`, formData, {
+      const response = await axiosInstance.put(`${userData.memId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -118,97 +123,131 @@ const MyPage = () => {
   };
   
   const profileImageUrl = userData.photoFileName
-    ? `http://localhost:8888/first/api/members/photo/${userData.photoFileName}?t=${new Date().getTime()}`
+    ? `http://localhost:8888/api/profile-pictures/${userData.memId}?t=${new Date().getTime()}`
     : '/default-profile.png';
 
   return (
     <Container className="mt-5">
-      <h2>마이페이지</h2>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="profileImage" className="mb-3">
-          <Form.Label>프로필 사진</Form.Label>
-          <div className="mb-3">
-            <Image 
-              src={profileImageUrl} 
-              roundedCircle 
-              width="100" 
-              height="100" 
-              alt="Profile" 
-              onError={(e) => { e.target.onerror = null; e.target.src = '/default-profile.png'; }}
-            />
-          </div>
-          <Form.Control type="file" accept="image/*" onChange={handleFileChange} />
-        </Form.Group>
-
-        <Form.Group controlId="userName" className="mb-3">
-          <Form.Label>이름</Form.Label>
-          <Form.Control
-            type="text"
-            name="userName"
-            value={userData.userName}
-            onChange={handleChange}
-            required
+    <h2>마이페이지</h2>
+    <Form onSubmit={handleSubmit}>
+      {/* 프로필 사진 */}
+      <Form.Group controlId="profileImage" className="mb-3">
+        <Form.Label>프로필 사진</Form.Label>
+        <div className="mb-3">
+          <Image 
+            src={profileImageUrl} 
+            roundedCircle 
+            width="100" 
+            height="100" 
+            alt="Profile" 
+            onError={(e) => { e.target.onerror = null; e.target.src = '/default-profile.png'; }}
           />
-        </Form.Group>
+        </div>
+        <Form.Control type="file" accept="image/*" onChange={handleFileChange} />
+      </Form.Group>
 
-        <Form.Group controlId="gender" className="mb-3">
-          <Form.Label>성별</Form.Label>
-          <Form.Control
-            as="select"
-            name="gender"
-            value={userData.gender}
-            onChange={handleChange}
-            required
-          >
-            <option value="">선택하세요</option>
-            <option value="M">남성</option>
-            <option value="F">여성</option>
-            <option value="O">기타</option>
-          </Form.Control>
-        </Form.Group>
+      {/* 이름 */}
+      <Form.Group controlId="memName" className="mb-3">
+        <Form.Label>이름</Form.Label>
+        <Form.Control
+          type="text"
+          name="memName"
+          value={userData.memName}
+          onChange={handleChange}
+          required
+        />
+      </Form.Group>
 
-        <Form.Group controlId="age" className="mb-3">
-          <Form.Label>나이</Form.Label>
-          <Form.Control
-            type="number"
-            name="age"
-            value={userData.age}
-            onChange={handleChange}
-            min="0"
-            max="150"
-            required
-          />
-        </Form.Group>
+      {/* 성별 */}
+      <Form.Group controlId="gender" className="mb-3">
+        <Form.Label>성별</Form.Label>
+        <Form.Control
+          as="select"
+          name="gender"
+          value={userData.gender}
+          onChange={handleChange}
+          required
+        >
+          <option value="">선택하세요</option>
+          <option value="M">남성</option>
+          <option value="F">여성</option>
+          <option value="O">기타</option>
+        </Form.Control>
+      </Form.Group>
 
-        <Form.Group controlId="phone" className="mb-3">
-          <Form.Label>전화번호</Form.Label>
-          <Form.Control
-            type="text"
-            name="phone"
-            value={userData.phone}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+      {/* 나이 */}
+      <Form.Group controlId="age" className="mb-3">
+        <Form.Label>나이</Form.Label>
+        <Form.Control
+          type="number"
+          name="age"
+          value={userData.age}
+          onChange={handleChange}
+          min="0"
+          max="150"
+          required
+        />
+      </Form.Group>
 
-        <Form.Group controlId="email" className="mb-3">
-          <Form.Label>이메일</Form.Label>
-          <Form.Control
-            type="email"
-            name="email"
-            value={userData.email}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+      {/* 휴대전화 */}
+      <Form.Group controlId="memCellphone" className="mb-3">
+        <Form.Label>휴대전화번호</Form.Label>
+        <Form.Control
+          type="tel"
+          name="memCellphone"
+          value={userData.memCellphone}
+          onChange={handleChange}
+          required
+          placeholder="예: 010-1234-5678"
+        />
+      </Form.Group>
 
-        {/* 필요한 다른 필드 추가 */}
+      {/* 일반전화 */}
+      <Form.Group controlId="memPhone" className="mb-3">
+        <Form.Label>일반전화번호</Form.Label>
+        <Form.Control
+          type="tel"
+          name="memPhone"
+          value={userData.memPhone}
+          onChange={handleChange}
+          placeholder="예: 02-123-4567"
+        />
+      </Form.Group>
 
-        <Button variant="primary" type="submit" disabled={loading}>
-          {loading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : '프로필 수정'}
-        </Button>
-      </Form>
-    </Container>
+      {/* 이메일 */}
+      <Form.Group controlId="memEmail" className="mb-3">
+        <Form.Label>이메일</Form.Label>
+        <Form.Control
+          type="email"
+          name="memEmail"
+          value={userData.memEmail}
+          onChange={handleChange}
+          required
+          placeholder="Enter your email"
+        />
+      </Form.Group>
+
+      {/* 주민등록번호 */}
+      <Form.Group controlId="memRnn" className="mb-3">
+        <Form.Label>주민등록번호</Form.Label>
+        <Form.Control
+          type="text"
+          name="memRnn"
+          value={userData.memRnn}
+          onChange={handleChange}
+          required
+          placeholder="Enter your RNN"
+        />
+      </Form.Group>
+
+      {/* 필요한 다른 필드 추가 */}
+
+      {/* 제출 버튼 */}
+      <Button variant="primary" type="submit" disabled={loading}>
+        {loading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : '프로필 수정'}
+      </Button>
+    </Form>
+  </Container>
   );
 };
 

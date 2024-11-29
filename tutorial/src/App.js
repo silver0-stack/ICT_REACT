@@ -8,15 +8,15 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from "./components/NavBar";
 import Footer from "./components/Footer";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import LoginResponse from "./pages/LoginResponse";
-import SignUpResponse from "./pages/SignUpResponse";
+import Login from "./pages/member/Login";
+import SignUp from "./pages/member/SignUp";
+import LoginResponse from "./pages/member/LoginResponse";
+import SignUpResponse from "./pages/member/SignUpResponse";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import { AuthProvider } from "./context/AuthContext";
-import MyPage from './pages/MyPage';
-import Companion from "./pages/companion";
+import MyPage from './pages/member/MyPage';
+import Companion from "./pages/Companion";
 
 function App() {
   return (

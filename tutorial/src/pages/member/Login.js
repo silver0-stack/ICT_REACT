@@ -7,17 +7,24 @@
 
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from "../context/AuthContext";
-import axios from 'axios';
+import { AuthContext } from "../../context/AuthContext";
  
 
 const Login = () => {
   const { setAuth, axiosInstance } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState(''); 
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    memId:'',
+    memPw: '',
+  });
   const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({...formData, [name]: value });
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // 폼 제출 시 페이지 새로고침을 방지, 이를 통해 상태를 유지하면서 비동기적으로 요청을 보낼 수 있음
@@ -25,8 +32,8 @@ const Login = () => {
     // 서버로 로그인 요청 보내기
     try {
       const response = await axiosInstance.post('/login', {
-        userId: email, //  백엔드의 User DTO에 맞게 필드명 조정
-        userPwd: password,
+        memId: formData.memId, // 'userId' -> 'memId'
+        memPw: formData.memPw, // 'userPwd' -> 'memPw'
       });
 
 
@@ -41,7 +48,7 @@ const Login = () => {
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('user', JSON.stringify(member));
-        navigate('/'); // 로그인 성공 시 대시보드로 이동
+        navigate('/'); // 로그인 성공 시 홈으로 이동
       }else{
         // 로그인 실패 시
         setError(response.data.message || '로그인에 실패했습니다.');
@@ -54,37 +61,46 @@ const Login = () => {
 
   return (
     <div className="auth-container">
-      <h2>Login</h2>
-      {error && <p className="error-message">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>ID:</label>
-          <input
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="Enter your email"
-            />
-            </div>
-            <div className="form-group">
-              <label>Password:</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e)=>setPassword(e.target.value)}
-                required
-                placeholder="Enter your password"
-                />
-            </div>
-            <button type="submit" className="submit-button">
-              Login
-            </button>
-      </form>
-      <p>
-        Don't have an account? <Link to="/signup">Sign Up</Link>
-      </p>
-    </div>
+    <h2>Login</h2>
+    {error && <p className="error-message text-danger">{error}</p>}
+    <form onSubmit={handleSubmit}>
+      {/* 회원 ID */}
+      <div className="form-group">
+        <label>ID:</label>
+        <input
+          type="text"
+          name="memId" // 'userId' → 'memId'
+          value={formData.memId}
+          onChange={handleChange}
+          required
+          placeholder="Enter your ID"
+          className="form-control"
+        />
+      </div>
+
+      {/* 비밀번호 */}
+      <div className="form-group">
+        <label>Password:</label>
+        <input
+          type="password"
+          name="memPw" // 'userPwd' → 'memPw'
+          value={formData.memPw}
+          onChange={handleChange}
+          required
+          placeholder="Enter your password"
+          className="form-control"
+        />
+      </div>
+
+      {/* 제출 버튼 */}
+      <button type="submit" className="btn btn-primary mt-3">
+        Login
+      </button>
+    </form>
+    <p className="mt-3">
+      Don't have an account? <Link to="/signup">Sign Up</Link>
+    </p>
+  </div>
   );
 };
 
