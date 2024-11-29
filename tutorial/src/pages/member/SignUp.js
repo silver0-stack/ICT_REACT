@@ -9,7 +9,7 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
-import axios from 'axios';
+import { toast } from 'react-toastify';
 
 
 const SignUp = () => {
@@ -30,6 +30,7 @@ const SignUp = () => {
     photoFile: null,
   })
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // 로딩 상태 추가
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -46,7 +47,7 @@ const SignUp = () => {
       return;
     }
     try {
-      const idCheckResponse = await axiosInstance.post('/idchk', null, {
+      const idCheckResponse = await axiosInstance.post('/api/members/idchk', null, {
         params: { memId: formData.memId },
       });
 
@@ -64,6 +65,7 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); //폼 제출 시 페이지 새로고침을 방지 -> 비동기적 요청 위함
+    setLoading(true); // 로딩 시작
 
     // 회원가입 데이터 준비
     const data = new FormData();
@@ -76,20 +78,42 @@ const SignUp = () => {
     data.append('memCellphone', formData.memCellphone);
     data.append('memPhone', formData.memPhone);
     data.append('memRnn', formData.memRnn);
-    if (formData.photoFile) {
-      data.append('photoFile', formData.photoFile);
-    }
+    // 기타 필요한 필드 추가...
+
 
 
     try {
-      const response = await axiosInstance.post('/enroll', data, {
+      // 회원가입 요청 (프로필 사진 제외)
+      const response = await axiosInstance.post('/api/members/enroll', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
       if (response.data.success) {
-        // 회원가입 성공 시 메시지 전달
+        const member = response.data.data;
+        toast.success('회원가입이 완료되었습니다.');
+
+        // 프로필 사진 업로드 (필요 시)
+        if(formData.photoFile){
+          try{
+            const response = await axiosInstance.post(`/api/profile-pictures/${member.memUuid}`, formData.photoFile, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
+
+            if(response.data.success){
+              toast.success('프로필 사진이 성공적으로 업로드되었습니다.');
+            }else{
+              toast.error(response.data.message || '프로필 사진 업로드에 실패했습니다.');
+            }
+          }catch(err){
+            console.error(err);
+            toast.error('프로필 사진 업로드 중 오류가 발생했습니다.');
+          }
+        }
+        // 회원가입 후 리다이렉트
         navigate('/signup-response', { state: { message: '회원가입이 완료되었습니다. 로그인해주세요.' } });
       } else {
         setError(response.data.message || '회원가입에 실패했습니다.');
