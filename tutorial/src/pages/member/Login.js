@@ -11,7 +11,7 @@ import { AuthContext } from "../../context/AuthContext";
  
 
 const Login = () => {
-  const { setAuth, axiosInstance } = useContext(AuthContext);
+  const { setAuth, springBootAxiosInstance } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ const Login = () => {
 
     // 서버로 로그인 요청 보내기
     try {
-      const response = await axiosInstance.post('/login', {
+      const response = await springBootAxiosInstance.post('/api/members/login', {
         memId: formData.memId, // 'userId' -> 'memId'
         memPw: formData.memPw, // 'userPwd' -> 'memPw'
       });

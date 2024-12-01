@@ -13,7 +13,7 @@ import { toast } from 'react-toastify';
 
 
 const SignUp = () => {
-  const { axiosInstance } = useContext(AuthContext);
+  const { springBootAxiosInstance } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -47,7 +47,7 @@ const SignUp = () => {
       return;
     }
     try {
-      const idCheckResponse = await axiosInstance.post('/api/members/idchk', null, {
+      const idCheckResponse = await springBootAxiosInstance.post('/api/members/idchk', null, {
         params: { memId: formData.memId },
       });
 
@@ -84,7 +84,7 @@ const SignUp = () => {
 
     try {
       // 회원가입 요청 (프로필 사진 제외)
-      const response = await axiosInstance.post('/api/members/enroll', data, {
+      const response = await springBootAxiosInstance.post('/api/members/enroll', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -97,7 +97,7 @@ const SignUp = () => {
         // 프로필 사진 업로드 (필요 시)
         if(formData.photoFile){
           try{
-            const response = await axiosInstance.post(`/api/profile-pictures/${member.memUuid}`, formData.photoFile, {
+            const response = await springBootAxiosInstance.post(`/api/profile-pictures/${member.memUuid}`, formData.photoFile, {
               headers: {
                 'Content-Type': 'multipart/form-data',
               },
