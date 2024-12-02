@@ -69,6 +69,12 @@ export const AuthProvider = ({ children }) => {
    * 두 Axios 인스턴스에 적용할 수 있습니다.
    */
   const setupInterceptors = (axiosInstance, isFlask = false) => {
+
+    if (isFlask) {
+      // Flask 백엔드와의 통신에는 인터셉터 설정을 생략
+      return;
+    }
+
     // 요청 인터셉터: 모든 Axios 요청 전에 실행되어 Access Token을 헤더에 추가
     axiosInstance.interceptors.request.use(
       (config) => {
@@ -133,7 +139,7 @@ export const AuthProvider = ({ children }) => {
 
   // 각 Axios 인스턴스에 인터셉터 설정
   setupInterceptors(springBootAxiosInstance); // Spring Boot 인스턴스 설정
-  setupInterceptors(flaskAxiosInstance); // Flask 인스턴스 설정
+  setupInterceptors(flaskAxiosInstance, true); // Flask 인스턴스에는 인터셉터를 설정하지 않음
 
   // 로그아웃 함수: 인증 상태와 LocalStorage를 초기화
   const logout = () => {

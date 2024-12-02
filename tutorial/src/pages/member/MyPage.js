@@ -58,7 +58,7 @@ const MyPage = () => {
     setLoading(true);
   
     // 클라이언트 측 유효성 검사
-    if (!/\S+@\S+\.\S+/.test(userData.email)) {
+    if (!/^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-za-z0-9\-]+/.test(userData.email)) {
       toast.error('유효한 이메일 주소를 입력해주세요.');
       setLoading(false);
       return;
@@ -252,3 +252,27 @@ const MyPage = () => {
 };
 
 export default MyPage;
+
+
+
+/*
+수정 사항 설명:
+
+1. **필드 이름 일치화:**
+   - `userId` → `memId`
+   - `userName` → `memName`
+   - `phone` → `memCellphone` 및 `memPhone`
+   - `email` → `memEmail`
+   - `rnn` → `memRnn`
+   - 등 백엔드와 일치하도록 이름을 수정했습니다.
+
+2. **Axios 인스턴스 사용:**
+   - API 호출을 `axiosInstance`를 통해 일관되게 처리하도록 수정했습니다.
+
+3. **프로필 사진 URL 수정:**
+   - 프로필 사진을 가져오는 API 경로를 `memId`를 기반으로 수정했습니다.
+   - 예: `http://localhost:8888/api/profile-pictures/${userData.memId}`
+
+4. **에러 처리 및 사용자 경험 개선:**
+   - 에러 메시지 및 성공 메시지를 `toast`를 사용하여 사용자에게 시각적으로 피드백을 제공합니다.
+*/

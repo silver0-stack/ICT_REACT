@@ -21,8 +21,16 @@ const Companion = () => {
       // 토큰 확인 로그 추가
       console.log("Access Token being sent:", auth.accessToken);
 
-      // Flask 백엔드로 메시지 전송
-      const response = await flaskAxiosInstance.post('/chat', { message });
+      // Flask 백엔드로 메시지 전송 시 Authorization 헤더에 Bearer 토큰 포함
+      const response = await flaskAxiosInstance.post(
+        '/chat',
+        { message },
+        {
+          headers: {
+            'Authorization': `Bearer ${auth.accessToken}`
+          }
+        }
+      );
       const reply = response.data.reply;
 
       // AI 응답을 채팅 목록에 추가
