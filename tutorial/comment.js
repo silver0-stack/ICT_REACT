@@ -1,18 +1,8 @@
-/*
-? My Class
-! Creating some Copyright Notes
-*/
-
-/*
- & My Function
- ! Some Alert
- ^ some stuff
- ? Question
- * Highlights
- ~ Arrow Function
- TODO COLORFUL
-*/
-
-// ^ Tested all Cases
-
-// * End of the file
+//! Red: 중요한 경고나 주의를 나타냅니다.
+//? Blue: 질문이나 의문점을 표시합니다.
+//^ Yellow: 참고 사항이나 노트를 추가합니다.
+//& Pink: 아이디어나 제안을 기록합니다.
+//~ Purple: 생각이나 고민을 표현합니다.
+//todo Mustard: 해야 할 일을 나열합니다.
+// Grey: 일반 주석으로, 특별한 강조 없이 사용됩니다.
+//* 파일 끝

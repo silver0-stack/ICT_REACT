@@ -12,7 +12,7 @@ const Home = () => {
         <div className="home-container">
             <h1>Welcome to the Home Page!</h1>
             {auth.user? (
-                <><p>안녕하세요, {auth.user.userName}님!</p><nav>
+                <><p>안녕하세요, {auth.user.memName}님!</p><nav>
                     <ul>
                         <li><Link to="/companion">말동무</Link></li>
                     </ul>

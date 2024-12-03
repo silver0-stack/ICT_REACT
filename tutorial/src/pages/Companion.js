@@ -24,12 +24,7 @@ const Companion = () => {
       // Flask 백엔드로 메시지 전송 시 Authorization 헤더에 Bearer 토큰 포함
       const response = await flaskAxiosInstance.post(
         '/chat',
-        { message },
-        {
-          headers: {
-            'Authorization': `Bearer ${auth.accessToken}`
-          }
-        }
+        { message }
       );
       const reply = response.data.reply;
 
