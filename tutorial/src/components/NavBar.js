@@ -11,11 +11,11 @@ const NavBar = () => {
   const navigate = useNavigate();
 
   // 환경 변수로 백엔드 URL 설정 (프로덕션 환경에서도 유연하게 대응)
-  const backendBaseUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8888';
+  const backendBaseUrl = process.env.REACT_APP_SPRING_BOOT_URL || 'http://localhost:8888/first';
 
   // 프로필 사진 URL 구성(캐시 무효화를 위해 타임스탬프 추가)
   const profileImageUrl = auth.user && auth.user.photoFileName
-    ? `${backendBaseUrl}/first/api/members/photo/${auth.user.photoFileName}?t=${new Date().getTime()}`
+    ? `${backendBaseUrl}/api/members/photo/${auth.user.photoFileName}?t=${new Date().getTime()}`
     : '/default-profile.png'; // 기본 프로필 사진 경로 (public 폴더에 위치)
 
   // 디버깅: AuthContext의 photoFileName 값 확인
@@ -40,6 +40,11 @@ const NavBar = () => {
         <Nav className="ms-auto"> {/* Bootstrap 5에서는 'ml-auto' 대신 'ms-auto' 사용 */}
           {auth.accessToken ? (
             <>
+             <Nav.Link as={Link} to="/">Home</Nav.Link>
+             <Nav.Link as={Link} to="/notices">공지사항</Nav.Link>
+             {auth.user && auth.user.memType === 'ADMIN' && (
+              <Nav.Link as={Link} to="/notices/add">공지사항 추가</Nav.Link>
+             )}
               <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
               <Dropdown align="end"> {/* 'alignRight' 대신 'align="end"' 사용 */}
                 <Dropdown.Toggle variant="light" id="dropdown-basic">

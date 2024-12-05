@@ -1,0 +1,22 @@
+src/
+├── components/
+│   ├── Header.js
+│   ├── Sidebar.js
+│   ├── Dashboard/
+│   │   ├── Calendar.js
+│   │   ├── EventList.js
+│   ├── MedicalHistory/
+│   │   ├── HistoryTable.js
+│   │   ├── PatientDetails.js
+│   ├── EmergencyAlert/
+│   │   ├── Webcam.js
+│   │   ├── AlertModal.js
+│   └── Common/
+│       ├── Button.js
+│       ├── Input.js
+├── pages/
+│   ├── LoginPage.js
+│   ├── DashboardPage.js
+│   ├── MedicalHistoryPage.js
+│   └── EmergencyAlertPage.js
+└── App.js
