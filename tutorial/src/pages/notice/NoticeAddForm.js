@@ -23,6 +23,9 @@ const NoticeAddForm = () => {
             if(error.response && error.response.data && error.response.data.message){
                 setErrorMessage(error.response.data.message); // 에러 메시지 상태 업데이트
                 console.error('서버 응답 메시지: ', error.response.data.message); // 메시지 로그 출력
+            }else{
+                setErrorMessage('공지사항 등록 중 오류가 발생했습니다.');
+                console.error('공지사항 등록 중 알 수 없는 오류: ', error);
             }
         }
     };
