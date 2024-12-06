@@ -18,6 +18,10 @@ import { AuthProvider } from "./context/AuthContext";
 import MyPage from './pages/member/MyPage';
 import Companion from "./pages/Companion";
 
+import NoticeList from './pages/notice/NoticeList';
+import NoticeDetail from './pages/notice/NoticeDetail';
+import NoticeAddForm from './pages/notice/NoticeAddForm';
+
 function App() {
   return (
     <AuthProvider>
@@ -31,6 +35,7 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login-response" element={<LoginResponse />} />
             <Route path="/signup-response" element={<SignUpResponse />} />
+            {/* 보호된 라우트 예시 */}
             <Route
               path="/mypage"
               element={
@@ -39,7 +44,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* 보호된 라우트 예시 */}
             <Route
               path="/dashboard"
               element={
@@ -49,7 +53,6 @@ function App() {
               }
             />
 
-
             <Route
               path="/companion"
               element={
@@ -57,7 +60,28 @@ function App() {
                   <Companion />
                 </ProtectedRoute>
               } />
+            <Route
+              path="/notices" element={
+                <ProtectedRoute>
+                  <NoticeList />
+                </ProtectedRoute>
+              } />
+            <Route
+              path="/notices/:notId" element={
+                <ProtectedRoute>
+                  <NoticeDetail />
+                </ProtectedRoute>
+              } />
+            <Route
+              path="/notices/add" element={
+                <ProtectedRoute>
+                  <NoticeAddForm />
+                </ProtectedRoute>
+              } />
+
+              
           </Routes>
+
         </div>
         <Footer />
       </Router>
