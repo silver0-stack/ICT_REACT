@@ -80,6 +80,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  //! 토큰 만료 시 UI 반응 개선
+  const handleExpiredToken = () => {
+    setAuth({
+      accessToken: null,
+      refreshToken: null,
+      user: null,
+    });
+    localStorage.clear();
+    toast.error('세션이 만료되었습니다. 다시 로그인 해주세요.');
+    window.location.href = '/login'; //로그인 페이지로 이동
+  };
 
   //* 공통 인터셉터 로직을 함수로 추출
   const setupInterceptors = (axiosInstance) => {
@@ -116,19 +127,32 @@ export const AuthProvider = ({ children }) => {
         ) {
           originalRequest._retry = true; // 재시도 플래그 설정하여 무한 재시도 하지 않도록 방지
           console.log("Attempting to refresh token with refreshToken:", auth.refreshToken);
-          const newAccessToken = await refreshToken(); // 토큰 재발급 함수 호출
+          try{
+            const newAccessToken = await refreshToken(); // 토큰 재발급 함수 호출
+  
+            if (newAccessToken) {
+              //! 원래의 요청 헤더에 새로운 Access Token 추가
+              originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+              //! 수정된 요청을 재시도
+              return axiosInstance(originalRequest);
+            }
 
-          if (newAccessToken) {
-            //! 원래의 요청 헤더에 새로운 Access Token 추가
-            originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-            //! 수정된 요청을 재시도
-            return axiosInstance(originalRequest);
+          }catch(refreshError){
+            console.error('Token refresh failed:', refreshError);
+            handleExpiredToken(); // * Refresh Token도 유효하지 않으면 세션 초기화
           }
+        }
+        
+        //* 401 외의 에러 처리
+        if(error.response && error.response.status === 401){
+          handleExpiredToken(); // 인증 실패 시 세션 초기화
         }
 
         return Promise.reject(error); // 조건에 해당하지 않으면 오류를 그대로 Promise 체인에 전달
       }
     );
+
+    
   };
 
   //! Spring Boot용 Axios 인스턴스 생성
@@ -158,6 +182,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
   };
+
+
 
   //* auth 상태가 변경될 때마다 LocalStorage를 업데이트!!
   useEffect(() => {

@@ -43,8 +43,8 @@ const NoticeList = () => {
                 {/* 질문: <li key={}> 에서 key는 어떤 키워드고 무슨 기능인지 궁금함*/}
                 {/* //* React가 리스트 항목의 고유성을 식별하고 DOM 업데이트를 최적화하도록 돕는 값 */}
                 {notices.map((notice) => (
-                    <li key={notices.notId}>
-                        <Link to={`/notice/${notice.notId}`}>{notice.notTitle}</Link>
+                    <li key={notice.notId}>
+                        <Link to={`/notices/${notice.notId}`}>{notice.notTitle}</Link>
                     </li>
                 ))}
             </ul>

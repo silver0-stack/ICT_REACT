@@ -19,13 +19,13 @@ const NoticeAddForm = () => {
             await springBootAxiosInstance.post('/api/notices', form);
             navigate('/notices'); // 등록 후 목록 페이지로 이동
         } catch (error) {
-            // 서버에서 반환된 ApiResponse의 메시지 처리
-            if(error.response && error.response.data && error.response.data.message){
-                setErrorMessage(error.response.data.message); // 에러 메시지 상태 업데이트
-                console.error('서버 응답 메시지: ', error.response.data.message); // 메시지 로그 출력
-            }else{
-                setErrorMessage('공지사항 등록 중 오류가 발생했습니다.');
-                console.error('공지사항 등록 중 알 수 없는 오류: ', error);
+            if (error.response) {
+                const errorMessage = error.response.data?.message || '알 수 없는 오류가 발생했습니다.';
+                setErrorMessage(errorMessage); // 화면에 표시
+                console.error(`Error ${error.response.status}: ${errorMessage}`);
+            } else {
+                setErrorMessage('서버와 통신에 실패했습니다.');
+                console.error('Error: ', error);
             }
         }
     };

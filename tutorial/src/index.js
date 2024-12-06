@@ -7,21 +7,30 @@ import App from './App';
 import 'react-toastify/dist/ReactToastify.css'; // Toastify 스타일 추가
 import { ToastContainer } from 'react-toastify';
 
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  <>
     <App />
-    <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick pauseOnFocusLoss draggable pauseOnHover />
-  </React.StrictMode>
+    <ToastContainer 
+      position="top-right" 
+      autoClose={5000} 
+      hideProgressBar={false} 
+      newestOnTop={false} 
+      closeOnClick 
+      pauseOnFocusLoss 
+      draggable 
+      pauseOnHover 
+    />
+  </>
 );
 
 /*
 수정 사항 설명:
 
-1. ToastContainer 추가:
- - 'react-toastify'를 사용하여 ToastContainer를 추가했습니다. 이를 통해 애플리케이션 전반에서 toast 알림을 사용할 수 있습니다.
+1. React.StrictMode 제거:
+ - 개발 중 React.StrictMode를 끄면 일부 중복 렌더링 문제가 해결될 수 있습니다.
+ - 주의: StrictMode는 개발 환경에서 잠재적인 문제를 미리 발견하는 도구이므로, 프로덕션 환경에서는 비활성화되지 않습니다.
 
- 2. 스타잉링 확인:
-  -  `bootstrap`과 `react-toastify`의 CSS 파일을 올바르게 import 했는지 확인했습니다.
+2. ToastContainer 확인:
+ - Toastify 스타일과 설정을 그대로 유지했습니다.
  */
