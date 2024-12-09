@@ -78,8 +78,16 @@ function App() {
                   <NoticeAddForm />
                 </ProtectedRoute>
               } />
+            <Route
+              path="/notices/edit/:notId"
+              element={
+                <ProtectedRoute>
+                  <NoticeAddForm />
+                </ProtectedRoute>
+              }
+            />
 
-              
+
           </Routes>
 
         </div>

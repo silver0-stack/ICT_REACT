@@ -1,12 +1,15 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
 const NoticeDetail = () => {
-    const { springBootAxiosInstance } = useContext(AuthContext);
+    const { springBootAxiosInstance, auth } = useContext(AuthContext);
     //! useParams(): 라우트 경로의 동적 세그먼트(:userId)를 객체로 반환
     //* { notId: '123' }
     const { notId } = useParams();
+    
+    const navigate = useNavigate();
+
     //^ notice의 초기값을 null로 설정하면 데이터가 비동기로 로드되기 때문에 
     //^ fetchNotices가 완료되기 전까지 notice는 null 상태가 되어버린다.
     //* 컴포넌트가 렌더링되는 동안 null인 상태에서 notice.notTitle에 접근하려고 해서 null 에러 발생했음
@@ -27,13 +30,13 @@ const NoticeDetail = () => {
             } catch (error) {
                 console.error('공지사항 페치 실패:', error);
             } finally {
-                setLoading(false); 
+                setLoading(false);
             }
         };
 
         fetchNotice();
 
-    }, [notId, hasFetched]);
+    }, [notId, hasFetched, springBootAxiosInstance]);
 
     // 데이터를 비동기로 로드하는 동안 로딩 처리
     if (loading) return <p>Loading ....</p>;
@@ -41,12 +44,28 @@ const NoticeDetail = () => {
     // notice가 null인 경우 처리
     if (!notice) return <p>공지사항을 불러오는 데 실패했습니다.</p>;
 
+    // notice 상태변수를 공지사항 수정 하는 폼으로 전송한다.
+    //* notice가 null이거나 초기화되지 않은 경우 , state가 제대로 전달되지 않을 수 있다.
+    //* 빈 상태를 처리하거나 기본값을 설정하는 로직이 필요하다.
+    const handleEdit = () => {
+        if(!notice){
+            console.error("공지사항 데이터가 비어있습니다.");
+            return;
+        }
+        console.log('Notice state: ', notice);
+        navigate(`/notices/edit/${notId}`, { state: notice });
+    };
+
+
     return (
         <div>
             <h1>{notice.notTitle}</h1>
             <p>{notice.notContent}</p>
             <p>작성자: {notice.notCreatedBy}</p>
             <p>조회수: {notice.notReadCount}</p>
+            {auth.user?.memType === 'ADMIN' && (
+                <button onClick={handleEdit}>공지사항 수정</button>
+            )}
         </div>
     );
 };
