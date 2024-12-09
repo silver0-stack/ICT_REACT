@@ -6,7 +6,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const MyPage = () => {
-  const { auth, setAuth, axiosInstance } = useContext(AuthContext);
+  const { auth, setAuth, springBootAxiosInstance } = useContext(AuthContext);
   
   // 올바른 구조 분해 할당 사용
   const [userData, setUserData] = useState({
