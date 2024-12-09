@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const NoticeDetail = () => {
     const { springBootAxiosInstance, auth } = useContext(AuthContext);
@@ -56,6 +57,25 @@ const NoticeDetail = () => {
         navigate(`/notices/edit/${notId}`, { state: notice });
     };
 
+    
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm("정말로 이 공지사항을 삭제하시겠습니까?");
+        if(!confirmDelete) return; // 삭제 확인 취소 시 동작 중지
+
+        try{
+            await springBootAxiosInstance.delete(`/api/notices/${notId}`);
+            alert("공지사항이 성공적으로 삭제되었습니다.");
+            navigate('/notices'); // 공지사항 목록으로 이동
+        }catch(error){
+            toast.error('공지사항 삭제 실패: ', error);
+            if(error.response){
+                console.error(error.response.data.message);
+                alert('공지사항 삭제에 실패했습니다.');
+            }
+        }
+    }
+
+
 
     return (
         <div>
@@ -64,7 +84,10 @@ const NoticeDetail = () => {
             <p>작성자: {notice.notCreatedBy}</p>
             <p>조회수: {notice.notReadCount}</p>
             {auth.user?.memType === 'ADMIN' && (
+                <>
                 <button onClick={handleEdit}>공지사항 수정</button>
+                <button onClick={handleDelete}>공지사항 삭제</button>
+                </>
             )}
         </div>
     );
