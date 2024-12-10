@@ -10,6 +10,7 @@ const MyPage = () => {
   
   // 초기 상태 설정
   const [userData, setUserData] = useState({
+    memUuid: '',
     memId: '',
     memPw: '',
     memName: '',
@@ -32,6 +33,7 @@ const MyPage = () => {
   useEffect(() => {
     if (auth.user) {
       setUserData({
+        memUuid: auth.user.memUuid,
         memId: auth.user.memId,
         memName: auth.user.memName,
         gender: auth.user.gender,
@@ -83,7 +85,7 @@ const MyPage = () => {
   
     try {
       // PUT 요청 시 파일명 포함하지 않음
-      const response = await springBootAxiosInstance.put(`/api/members/${userData.memId}`, formData);
+      const response = await springBootAxiosInstance.put(`/api/members/${auth.user.memId}`, formData);
       if (response.data.success) {
         toast.success('프로필 수정 성공');
         // 업데이트된 사용자 정보를 AuthContext에 반영
@@ -125,6 +127,11 @@ const MyPage = () => {
         }
       );
       if(response.data.success){
+        const newProfileUrl = `${apiBaseUrl}/api/profile-pictures/${auth.user.memUuid}?t=${new Date().getTime()}`;
+        setAuth((prevAuth) => ({
+          ...prevAuth,
+          profileImageUrl: newProfileUrl, // AuthContext 업데이트
+        }));
         toast.success('프로필 사진 업로드 성공');
         setCurrentProfileUrl(
           `${apiBaseUrl}/api/profile-pictures/${auth.user.memUuid}?t=${new Date().getTime()}`
@@ -147,6 +154,14 @@ const MyPage = () => {
       );
       if(response.data.success){
         toast.success('프로필 삭제 성공');
+
+      // AuthContext의 profileImageUrl을 기본 이미지로 변경
+      setAuth((prevAuth) => ({
+        ...prevAuth,
+        profileImageUrl: '/default-profile.png', // 기본 이미지로 설정
+      }));
+
+      // 마이페이지의 로컬 상태도 업데이트
         setCurrentProfileUrl('/default-profile.png');
       }else{
         toast.error(response.data.message || '프로필 사진 삭제 실패');

@@ -183,12 +183,15 @@ export const AuthProvider = ({ children }) => {
       user: null,
       profileImageUrl: '/default-profile.png', // 프로필 이미지 URL 추가
     });
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    localStorage.clear();
   };
 
-
+  // AuthContext 상태 변경 시 LocalStorage 업데이트
+  useEffect(() => {
+    if (auth.profileImageUrl) {
+      localStorage.setItem('profileImageUrl', auth.profileImageUrl);
+    }
+  }, [auth.profileImageUrl]);
 
   //* auth 상태가 변경될 때마다 LocalStorage를 업데이트!!
   useEffect(() => {

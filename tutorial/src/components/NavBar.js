@@ -1,6 +1,6 @@
 // src/components/NavBar.js
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Navbar, Nav, Image, Dropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -13,19 +13,14 @@ const NavBar = () => {
   // 환경 변수로 백엔드 URL 설정 (프로덕션 환경에서도 유연하게 대응)
   const backendBaseUrl = process.env.REACT_APP_SPRING_BOOT_URL || 'http://localhost:8888/first';
 
-  const [profileImageUrl, setProfileImageUrl] = useState('/default-profile.png');
-
+  const profileImageRef=useRef(null); // useRef를 통해 DOM 요소를 참조
 
   useEffect(() => {
-    if (auth.user) {
-      const profileUrl = auth.user.memUuid
-        ? `${backendBaseUrl}/api/profile-pictures/${auth.user.memUuid}?t=${new Date().getTime()}`
-        : '/default-profile.png';
-      setProfileImageUrl(profileUrl);
-    } else {
-      setProfileImageUrl('/default-profile.png'); // 로그인한 상태가 아니라면 기본 프로필 사진 
+    if(profileImageRef.current){
+      profileImageRef.current.src=auth.profileImageUrl || '/default-profile.png';
     }
-  }, [auth.user, backendBaseUrl]);
+
+  }, [auth.profileImageUrl]);
 
   const handleLogout = () => {
     logout();
@@ -49,7 +44,8 @@ const NavBar = () => {
               <Dropdown align="end"> {/* 'alignRight' 대신 'align="end"' 사용 */}
                 <Dropdown.Toggle variant="light" id="dropdown-basic">
                   <Image
-                    src={profileImageUrl}
+                    ref={profileImageRef}
+                    src={auth.profileImageUrl}
                     roundedCircle
                     width="40"
                     height="40"
