@@ -48,7 +48,7 @@ const MyPage = () => {
       : '/default-profile.png';
       setCurrentProfileUrl(profileUrl);
     }
-  }, [auth.user]);
+  }, [apiBaseUrl, auth.user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
