@@ -127,7 +127,7 @@ const MyPage = () => {
       if(response.data.success){
         toast.success('프로필 사진 업로드 성공');
         setCurrentProfileUrl(
-          `http://localhost:8888/first/api/profile-pictures/${auth.user.memUuid}?t=${new Date().getTime()}`
+          `${apiBaseUrl}/api/profile-pictures/${auth.user.memUuid}?t=${new Date().getTime()}`
         );
       }else{
         toast.error(response.data.message || '프로필 사진 업로드 실패');

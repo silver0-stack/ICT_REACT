@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }) => {
     accessToken: localStorage.getItem('accessToken') || null, // Access Token: 로그인 후 발급받은 액세스 토큰
     refreshToken: localStorage.getItem('refreshToken') || null, // Refresh Token: 액세스 토큰을 갱신하기 위한 리프레시 토큰
     user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null, // 사용자 정보(사용자 이름, 역할 등)
+    profileImageUrl: '/default-profile.png', // 프로필 이미지 URL 추가
   });
 
   /**
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }) => {
         accessToken,
         refreshToken: newRefreshToken,
         user: member,
+
       });
 
       //! 새로운 토큰과 사용자 정보를 LocalStorage에 저장
@@ -67,6 +69,7 @@ export const AuthProvider = ({ children }) => {
         accessToken: null,
         refreshToken: null,
         user: null,
+        profileImageUrl: 'default-profile.png',
       });
 
       //! LocalStorage에서 인증 정보 제거
@@ -86,6 +89,7 @@ export const AuthProvider = ({ children }) => {
       accessToken: null,
       refreshToken: null,
       user: null,
+      profileImageUrl: 'default-profile.png',
     });
     localStorage.clear();
     toast.error('세션이 만료되었습니다. 다시 로그인 해주세요.');
@@ -177,6 +181,7 @@ export const AuthProvider = ({ children }) => {
       accessToken: null,
       refreshToken: null,
       user: null,
+      profileImageUrl: '/default-profile.png', // 프로필 이미지 URL 추가
     });
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
