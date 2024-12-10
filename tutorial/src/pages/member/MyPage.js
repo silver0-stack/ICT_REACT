@@ -6,38 +6,47 @@ import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const MyPage = () => {
-  const { auth, setAuth, springBootAxiosInstance } = useContext(AuthContext);
+  const { auth, setAuth, springBootAxiosInstance  } = useContext(AuthContext);
   
-  // 올바른 구조 분해 할당 사용
+  // 초기 상태 설정
   const [userData, setUserData] = useState({
     memId: '',
     memPw: '',
     memName: '',
     gender: '',
-    age: 0,
+    age: '',
     memCellphone: '',
     memPhone: '',
     memEmail: '',
     memRnn: '',
-    // 필요한 다른 필드 추가
   });
   
   const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentProfileUrl, setCurrentProfileUrl]=useState('/default-profile.png');
 
+  const apiBaseUrl = process.env.REACT_APP_SPRING_BOOT_API_URL;
+
+
+  // 사용자 정보 초기화
   useEffect(() => {
     if (auth.user) {
       setUserData({
-        memId: auth.user.memId, // 'userId' → 'memId'
-        memName: auth.user.memName, // 'userName' → 'memName'
+        memId: auth.user.memId,
+        memName: auth.user.memName,
         gender: auth.user.gender,
         age: auth.user.age,
-        memCellphone: auth.user.memCellphone, // 'phone' → 'memCellphone'
-        memPhone: auth.user.memPhone, // 'phone' → 'memPhone'
-        memEmail: auth.user.memEmail, // 'email' → 'memEmail'
-        memRnn: auth.user.memRnn, // 'rnn' → 'memRnn'
-        // 필요한 다른 필드 추가
+        memCellphone: auth.user.memCellphone,
+        memPhone: auth.user.memPhone,
+        memEmail: auth.user.memEmail,
+        memRnn: auth.user.memRnn,
       });
+
+      // 프로필 사진 URL 설정
+      const profileUrl = auth.user.memUuid
+      ? `${apiBaseUrl}/api/profile-pictures/${auth.user.memUuid}?t=${new Date().getTime()}` 
+      : '/default-profile.png';
+      setCurrentProfileUrl(profileUrl);
     }
   }, [auth.user]);
 
@@ -57,19 +66,6 @@ const MyPage = () => {
     e.preventDefault();
     setLoading(true);
   
-    // 클라이언트 측 유효성 검사
-    if (!/^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-za-z0-9\-]+/.test(userData.email)) {
-      toast.error('유효한 이메일 주소를 입력해주세요.');
-      setLoading(false);
-      return;
-    }
-  
-    if (!/^\d{3}-\d{3,4}-\d{4}$/.test(userData.phone)) {
-      toast.error('유효한 전화번호 형식을 입력해주세요. (예: 010-1234-5678)');
-      setLoading(false);
-      return;
-    }
-  
     const formData = new FormData();
     formData.append('memName', userData.memName);
     formData.append('gender', userData.gender);
@@ -78,25 +74,18 @@ const MyPage = () => {
     formData.append('memPhone', userData.memPhone);
     formData.append('memEmail', userData.memEmail);
     formData.append('memRnn', userData.memRnn);
-  
+
     // 비밀번호 변경 시 추가
     if (userData.memPw) {
       formData.append('memPw', userData.memPw);
     }
   
-    if (profileImage) {
-      formData.append('photoFile', profileImage);
-    }
   
     try {
       // PUT 요청 시 파일명 포함하지 않음
-      const response = await axiosInstance.put(`${userData.memId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await springBootAxiosInstance.put(`/api/members/${userData.memId}`, formData);
       if (response.data.success) {
-        toast.success('프로필이 성공적으로 수정되었습니다.');
+        toast.success('프로필 수정 성공');
         // 업데이트된 사용자 정보를 AuthContext에 반영
         setAuth(prevAuth => ({
           ...prevAuth,
@@ -106,25 +95,67 @@ const MyPage = () => {
           },
         }));
       } else {
-        toast.error(response.data.message || '프로필 수정에 실패했습니다.');
+        toast.error(response.data.message || '프로필 수정 실패');
       }
     } catch (error) {
-      console.error('프로필 수정 오류:', error);
-      if (error.response && error.response.status === 403) {
-        toast.error('권한이 없습니다. 관리자에게 문의해주세요.');
-      } else if (error.response && error.response.status === 409) {
-        toast.error('데이터 충돌이 발생했습니다. 다시 시도해주세요.');
-      } else {
-        toast.error('프로필 수정 중 오류가 발생했습니다.');
-      }
+      toast.error('프로필 수정 중 오류가 발생했습니다.');
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
-  
-  const profileImageUrl = userData.photoFileName
-    ? `http://localhost:8888/api/profile-pictures/${userData.memId}?t=${new Date().getTime()}`
-    : '/default-profile.png';
+
+
+  const handleProfileUpload = async() => {
+    if(!profileImage){
+      toast.error('업로드할 파일을 선택해주세요.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('photoFile', profileImage);
+
+    try{
+      const response = await springBootAxiosInstance.post(`/api/profile-pictures/${auth.user.memUuid}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      if(response.data.success){
+        toast.success('프로필 사진 업로드 성공');
+        setCurrentProfileUrl(
+          `http://localhost:8888/first/api/profile-pictures/${auth.user.memUuid}?t=${new Date().getTime()}`
+        );
+      }else{
+        toast.error(response.data.message || '프로필 사진 업로드 실패');
+      }
+    }catch(error){
+      toast.error('프로필 사진 업로드 중 오류가 발생했습니다.');
+      console.error(error);
+    }
+  };
+
+
+
+  const handleProfileDelete = async() => {
+    try{
+      const response = await springBootAxiosInstance.delete(
+        `/api/profile-pictures/${auth.user.memUuid}`
+      );
+      if(response.data.success){
+        toast.success('프로필 삭제 성공');
+        setCurrentProfileUrl('/default-profile.png');
+      }else{
+        toast.error(response.data.message || '프로필 사진 삭제 실패');
+      }
+    }catch(error){
+      toast.error('프로필 사진 삭제 중 오류가 발생했습니다.');
+      console.error(error);
+    }
+  };
 
   return (
     <Container className="mt-5">
@@ -132,19 +163,31 @@ const MyPage = () => {
     <Form onSubmit={handleSubmit}>
       {/* 프로필 사진 */}
       <Form.Group controlId="profileImage" className="mb-3">
-        <Form.Label>프로필 사진</Form.Label>
-        <div className="mb-3">
-          <Image 
-            src={profileImageUrl} 
-            roundedCircle 
-            width="100" 
-            height="100" 
-            alt="Profile" 
-            onError={(e) => { e.target.onerror = null; e.target.src = '/default-profile.png'; }}
-          />
-        </div>
-        <Form.Control type="file" accept="image/*" onChange={handleFileChange} />
-      </Form.Group>
+          <Form.Label>프로필 사진</Form.Label>
+          <div className="mb-3">
+            <Image
+              src={currentProfileUrl}
+              roundedCircle
+              width="100"
+              height="100"
+              alt="Profile"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/default-profile.png';
+              }}
+            />
+          </div>
+          <Form.Control type="file" accept="image/*" onChange={handleFileChange} />
+          <div className="mt-2">
+            <Button variant="primary" onClick={handleProfileUpload}>
+              프로필 사진 업로드
+            </Button>
+            <Button variant="danger" onClick={handleProfileDelete} className="ms-2">
+              프로필 사진 삭제
+            </Button>
+          </div>
+        </Form.Group>
+
 
       {/* 이름 */}
       <Form.Group controlId="memName" className="mb-3">
@@ -244,8 +287,8 @@ const MyPage = () => {
 
       {/* 제출 버튼 */}
       <Button variant="primary" type="submit" disabled={loading}>
-        {loading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : '프로필 수정'}
-      </Button>
+          {loading ? <Spinner as="span" animation="border" size="sm" /> : '프로필 수정'}
+        </Button>
     </Form>
   </Container>
   );
