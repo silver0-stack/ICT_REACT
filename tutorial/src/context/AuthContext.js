@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
         refreshToken: auth.refreshToken,
       });
 
-      //! 응답 데이터에서 새로운 토큰들과 사용자 정보르 ㄹ추출
+      //! 응답 데이터에서 새로운 토큰들과 사용자 정보를 추출
       const { accessToken, refreshToken: newRefreshToken, member } = response.data.data;
 
       //! 인증 상태 업데이트
