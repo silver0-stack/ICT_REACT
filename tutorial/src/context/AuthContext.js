@@ -1,6 +1,6 @@
 // src/context/AuthContext.js
 
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useRef } from 'react';
 import jwt_decode from 'jwt-decode';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -27,12 +27,23 @@ export const AuthProvider = ({ children }) => {
     accessToken: localStorage.getItem('accessToken') || null, // Access Token: 로그인 후 발급받은 액세스 토큰
     refreshToken: localStorage.getItem('refreshToken') || null, // Refresh Token: 액세스 토큰을 갱신하기 위한 리프레시 토큰
     user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null, // 사용자 정보(사용자 이름, 역할 등)
-    profileImageUrl: '/default-profile.png', // 프로필 이미지 URL 추가
+    profileImageUrl: localStorage.getItem('profileImageUrl') ||  '/default-profile.png', // 저장된 프로필 URL 불러오기
   });
+
+
+
+  //! useRef를 사용하여 최신 auth 상태를 유지
+  const authRef = useRef(auth);
+  useEffect(() => {
+    authRef.current = auth;
+  }, [auth]);
+
+
+
 
   /**
    * 토큰 재발급 함수
-   * Spring Boot의 /refresh-token 엔드포인트를 호출하여 새로운 access token 토큰을 발급받습니다.
+   * Spring Boot의 /api/members/refresh-token 엔드포인트를 호출하여 새로운 access token 토큰을 발급받습니다.
    */
   const refreshToken = async () => {
     try {
@@ -49,7 +60,6 @@ export const AuthProvider = ({ children }) => {
         accessToken,
         refreshToken: newRefreshToken,
         user: member,
-
       });
 
       //! 새로운 토큰과 사용자 정보를 LocalStorage에 저장
@@ -63,23 +73,8 @@ export const AuthProvider = ({ children }) => {
       //! 토큰 재발급 실패 시 에러 로그 출력 및 사용자에게 알림
       console.error('토큰 재발급 실패:', error);
       toast.error('세션이 만료되었습니다. 다시 로그인해주세요.');
-
-      //! 인증 상태 초기화
-      setAuth({
-        accessToken: null,
-        refreshToken: null,
-        user: null,
-        profileImageUrl: 'default-profile.png',
-      });
-
-      //! LocalStorage에서 인증 정보 제거
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-
-      //! 사용자 로그인 페이지로 리다이렉트
-      window.location.href = '/login';
-      return null;
+      handleExpiredToken(); // 실패 시 세션 초기화
+      return Promise.reject(error); // 에러를 반환하여 인터셉터에서 처리 가능하도록
     }
   };
 
@@ -122,7 +117,15 @@ export const AuthProvider = ({ children }) => {
       async (error) => {
         const originalRequest = error.config; // 원래의 요청 정보 저장
 
-        //* 응답 상태가 401(Unauthorized)이고, 재시도 요청이 아니며 Refresh Token이 존재할 경우 토큰 재발급 시도
+
+        // //^  /refresh-token 요청 및 /login 요청은 인터셉터에서 제외
+        if(originalRequest.url.includes('/api/members/refresh-token')){
+          return Promise.reject(error); // 무한 재시도 방지
+        }
+
+
+
+         // * 401 에러 및 재시도 시도가 아닌 경우, Refresh Token으로 Access Token 재발급 시도
         if (
           error.response &&
           error.response.status === 401 &&
@@ -130,7 +133,7 @@ export const AuthProvider = ({ children }) => {
           auth.refreshToken
         ) {
           originalRequest._retry = true; // 재시도 플래그 설정하여 무한 재시도 하지 않도록 방지
-          console.log("Attempting to refresh token with refreshToken:", auth.refreshToken);
+          console.log("이 리프레시토큰으로 access token 재발급 받으려 시도 중:", auth.refreshToken);
           try{
             const newAccessToken = await refreshToken(); // 토큰 재발급 함수 호출
   
@@ -172,8 +175,10 @@ export const AuthProvider = ({ children }) => {
   });
 
   //! 각 Axios 인스턴스에 인터셉터 설정
-  setupInterceptors(springBootAxiosInstance); // Spring Boot 인스턴스에 인터셉터 설정
-  setupInterceptors(flaskAxiosInstance); // Flask 인스턴스에 인터셉터 설정
+  // * 각 Axios 인스턴스에 인터셉터 설정
+    setupInterceptors(springBootAxiosInstance);
+    setupInterceptors(flaskAxiosInstance);
+
 
   //! 로그아웃 함수 - 인증 상태와 LocalStorage를 초기화
   const logout = () => {
@@ -188,10 +193,15 @@ export const AuthProvider = ({ children }) => {
 
   // AuthContext 상태 변경 시 LocalStorage 업데이트
   useEffect(() => {
+    console.log('AuthContext profileImageUrl 업데이트:', auth.profileImageUrl);
+
     if (auth.profileImageUrl) {
       localStorage.setItem('profileImageUrl', auth.profileImageUrl);
+    } else {
+      localStorage.removeItem('profileImageUrl');
     }
   }, [auth.profileImageUrl]);
+  
 
   //* auth 상태가 변경될 때마다 LocalStorage를 업데이트!!
   useEffect(() => {

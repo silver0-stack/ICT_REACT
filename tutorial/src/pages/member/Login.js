@@ -75,6 +75,7 @@ const Login = () => {
           required
           placeholder="Enter your ID"
           className="form-control"
+          autoComplete="username" // 추가된 속성
         />
       </div>
 
@@ -89,6 +90,7 @@ const Login = () => {
           required
           placeholder="Enter your password"
           className="form-control"
+          autoComplete="current-password"
         />
       </div>
 
