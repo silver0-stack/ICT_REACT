@@ -21,11 +21,13 @@ import Companion from "./pages/Companion";
 import NoticeList from './pages/notice/NoticeList';
 import NoticeDetail from './pages/notice/NoticeDetail';
 import NoticeAddForm from './pages/notice/NoticeAddForm';
+import VoiceCommandProvider from "./components/common/VoiceCommandProvider";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
+      <VoiceCommandProvider>
         <Navbar />
         <div style={{ minHeight: "80vh", padding: "20px" }}>
           <Routes>
@@ -90,8 +92,10 @@ function App() {
 
           </Routes>
 
+
         </div>
         <Footer />
+      </VoiceCommandProvider>
       </Router>
     </AuthProvider>
   );

@@ -1,53 +1,87 @@
-// src/components/Companion.js
-
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { VoiceCommandContext } from '../components/common/VoiceCommandProvider';
 
 const Companion = () => {
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
-  const { flaskAxiosInstance, auth } = useContext(AuthContext); // auth 가져오기
+  const { flaskAxiosInstance, auth } = useContext(AuthContext);
+  
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState(null);
+
+  const { comm_isListening, startListening } = useContext(VoiceCommandContext); // Context에서 값 가져오기
+
+  // 음성 인식 시작
+  const chat_startListening = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('음성 인식 기능을 지원하지 않는 브라우저입니다.');
+      return;
+    }
+    
+    const recognitionInstance = new SpeechRecognition();
+    recognitionInstance.lang = 'ko-KR';  // 한국어 음성 인식
+    recognitionInstance.interimResults = true;  // 중간 결과도 받기
+    recognitionInstance.maxAlternatives = 1;  // 최대 후보 1개
+
+    recognitionInstance.onstart = () => {
+      console.log('음성 인식 시작');
+      setIsListening(true);
+    };
+
+    recognitionInstance.onend = () => {
+      console.log('음성 인식 종료');
+      setIsListening(false);
+    };
+
+    recognitionInstance.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      console.log('음성 인식 결과:', transcript);
+      setMessage(transcript);
+    };
+
+    recognitionInstance.start();
+    setRecognition(recognitionInstance);
+  };
 
   const sendTextMessage = async () => {
     if (!message.trim()) {
-      alert("메시지를 입력하세요.");
+      alert('메시지를 입력하세요.');
       return;
     }
 
-    // 사용자 메시지를 먼저 채팅 목록에 추가
     setChat([...chat, { sender: '사용자', text: message }]);
 
     try {
-      // 토큰 확인 로그 추가
-      console.log("Access Token being sent:", auth.accessToken);
-
-      // Flask 백엔드로 메시지 전송 시 Authorization 헤더에 Bearer 토큰 포함
-      const response = await flaskAxiosInstance.post(
-        '/chat',
-        { message }
-      );
+      const response = await flaskAxiosInstance.post('/chat', { message });
       const reply = response.data.reply;
 
-      // AI 응답을 채팅 목록에 추가
       setChat([...chat, { sender: '사용자', text: message }, { sender: 'AI', text: reply }]);
 
-      // TTS 재생
       const ttsResponse = await flaskAxiosInstance.post('/speak', { text: reply }, { responseType: 'blob' });
       const audioUrl = URL.createObjectURL(ttsResponse.data);
       const audio = new Audio(audioUrl);
       audio.play();
     } catch (error) {
       console.error('Error: ', error);
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(`메시지 전송에 실패했습니다: ${error.response.data.message}`);
-      } else {
-        alert('메시지 전송에 실패했습니다.');
-      }
+      alert('메시지 전송에 실패했습니다.');
     }
 
-    // 입력 필드 초기화
     setMessage('');
   };
+
+  useEffect(() => {
+    if (isListening) {
+      chat_startListening();
+    } else if (recognition) {
+      recognition.stop();
+    }
+
+    return () => {
+      if (recognition) recognition.stop();
+    };
+  }, [isListening, recognition]);
 
   return (
     <div>
@@ -61,12 +95,18 @@ const Companion = () => {
           onKeyDown={(e) => { if (e.key === 'Enter') sendTextMessage(); }}
         />
         <button onClick={sendTextMessage}>전송</button>
+        <button onClick={() => setIsListening(!isListening)}>
+          {isListening ? '음성 인식 중지' : '음성 인식 시작'}
+        </button>
       </div>
       <div>
         {chat.map((msg, index) => (
           <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
         ))}
       </div>
+      <button onClick={() => startListening()}>
+        {comm_isListening ? '음성 인식 중지' : '음성 인식 시작'}
+      </button>
     </div>
   );
 };
