@@ -58,6 +58,8 @@ const MyPage = () => {
   };
 
   const handleFileChange = (e) => {
+    // 첫 번째 파일을 가져오는 코드
+    // 주로 단일 파일 업로드를 할때 씀
     setProfileImage(e.target.files[0]);
   };
 
