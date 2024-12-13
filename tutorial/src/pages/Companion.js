@@ -10,7 +10,7 @@ const Companion = () => {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
 
-  const { comm_isListening, startListening } = useContext(VoiceCommandContext); // Context에서 값 가져오기
+  const { comm_isListening, handleStartListening } = useContext(VoiceCommandContext); // Context에서 값 가져오기
 
   // 음성 인식 시작
   const chat_startListening = () => {
@@ -104,7 +104,7 @@ const Companion = () => {
           <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
         ))}
       </div>
-      <button onClick={() => startListening()}>
+      <button onClick={() => handleStartListening()}>
         {comm_isListening ? '음성 녹음 중지' : '음성 녹음 시작'}
       </button>
     </div>

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { VoiceCommandContext } from '../components/common/VoiceCommandProvider';
 
 const Home = () => {
-    const { isListening, startListening } = useContext(VoiceCommandContext); // Context에서 값 가져오기
+    const { isListening, handleStartListening } = useContext(VoiceCommandContext); // Context에서 값 가져오기
     const { auth } = useContext(AuthContext);
 
     return (
@@ -22,7 +22,7 @@ const Home = () => {
             ) : (
                 <p>Please <a href="/login">login</a> or <a href="/signup">sign up</a>.</p>
             )}
-            <button onClick={() => startListening()}>
+             <button onClick={handleStartListening}>
                 {isListening ? '음성 녹음 중지' : '음성 녹음 시작'}
             </button>
         </div>

@@ -1,6 +1,6 @@
 // src/components/common/VoiceCommandContext.js
 
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';  // 필요시 AuthContext도 사용할 수 있습니다
 
@@ -9,12 +9,31 @@ export const VoiceCommandContext = createContext();
 export const VoiceCommandProvider = ({ children }) => {
   const [isListening, setIsListening] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
+  const [stream, setStream] = useState(null);  // 마이크 스트림을 저장할 상태 변수
   const navigate = useNavigate();
   const { flaskAxiosInstance, auth } = useContext(AuthContext);
 
+  // 마이크 스트림을 가져오는 useEffect
+  useEffect(() => {
+    const getUserMedia = async () => {
+      try {
+        const userStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setStream(userStream);  // 마이크 스트림을 state로 설정
+      } catch (err) {
+        console.error('마이크 스트림을 가져오는 데 실패했습니다:', err);
+      }
+    };
+    getUserMedia();
+  }, []);
+
   const handleStartListening = () => {
+    if (!stream) {
+      console.error("마이크 스트림을 찾을 수 없습니다.");
+      return;
+    }
+
     setIsListening(true);
-    const mediaRecorder = new MediaRecorder(window.stream);
+    const mediaRecorder = new MediaRecorder(stream);
     const chunks = [];
 
     mediaRecorder.ondataavailable = (event) => {
