@@ -6,11 +6,11 @@ const Companion = () => {
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
   const { flaskAxiosInstance, auth } = useContext(AuthContext);
-  
-  const [isListening, setIsListening] = useState(false);
+
+  //const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
 
-  const { comm_isListening, handleStartListening } = useContext(VoiceCommandContext); // Context에서 값 가져오기
+  const { isListening, handleStartListening } = useContext(VoiceCommandContext); // VoiceCommandContext에서 가져오기
 
   // 음성 인식 시작
   const chat_startListening = () => {
@@ -19,21 +19,21 @@ const Companion = () => {
       alert('음성 인식 기능을 지원하지 않는 브라우저입니다.');
       return;
     }
-    
+
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.lang = 'ko-KR';  // 한국어 음성 인식
     recognitionInstance.interimResults = true;  // 중간 결과도 받기
     recognitionInstance.maxAlternatives = 1;  // 최대 후보 1개
 
-    recognitionInstance.onstart = () => {
-      console.log('음성 인식 시작');
-      setIsListening(true);
-    };
+    // recognitionInstance.onstart = () => {
+    //   console.log('음성 인식 시작');
+    //   setIsListening(true);
+    // };
 
-    recognitionInstance.onend = () => {
-      console.log('음성 인식 종료');
-      setIsListening(false);
-    };
+    // recognitionInstance.onend = () => {
+    //   console.log('음성 인식 종료');
+    //   setIsListening(false);
+    // };
 
     recognitionInstance.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
@@ -95,18 +95,21 @@ const Companion = () => {
           onKeyDown={(e) => { if (e.key === 'Enter') sendTextMessage(); }}
         />
         <button onClick={sendTextMessage}>전송</button>
-        <button onClick={() => setIsListening(!isListening)}>
-          {isListening ? '음성 인식 중지' : '음성 인식 시작'}
+
+        {/* 음성 인식 시작/중지 버튼 */}
+        <button onClick={() => handleStartListening()}>
+          {isListening ? '음성 녹음 중지' : '음성 녹음 시작'}
         </button>
+
       </div>
+
+
+
       <div>
         {chat.map((msg, index) => (
           <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
         ))}
       </div>
-      <button onClick={() => handleStartListening()}>
-        {comm_isListening ? '음성 녹음 중지' : '음성 녹음 시작'}
-      </button>
     </div>
   );
 };
