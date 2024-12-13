@@ -23,7 +23,7 @@ const Home = () => {
                 <p>Please <a href="/login">login</a> or <a href="/signup">sign up</a>.</p>
             )}
             <button onClick={() => startListening()}>
-                {isListening ? '음성 인식 중지' : '음성 인식 시작'}
+                {isListening ? '음성 녹음 중지' : '음성 녹음 시작'}
             </button>
         </div>
     );

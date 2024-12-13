@@ -21,7 +21,8 @@ import Companion from "./pages/Companion";
 import NoticeList from './pages/notice/NoticeList';
 import NoticeDetail from './pages/notice/NoticeDetail';
 import NoticeAddForm from './pages/notice/NoticeAddForm';
-import VoiceCommandProvider from "./components/common/VoiceCommandProvider";
+
+import { VoiceCommandProvider } from './components/common/VoiceCommandProvider';  // Context import
 
 function App() {
   return (

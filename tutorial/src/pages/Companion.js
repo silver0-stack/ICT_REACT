@@ -105,7 +105,7 @@ const Companion = () => {
         ))}
       </div>
       <button onClick={() => startListening()}>
-        {comm_isListening ? '음성 인식 중지' : '음성 인식 시작'}
+        {comm_isListening ? '음성 녹음 중지' : '음성 녹음 시작'}
       </button>
     </div>
   );
