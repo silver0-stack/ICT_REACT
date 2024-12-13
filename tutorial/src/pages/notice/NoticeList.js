@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { VoiceCommandContext } from '../components/common/VoiceCommandProvider';
+import { VoiceCommandContext } from '../../components/common/VoiceCommandProvider';
 
 const NoticeList = () => {
     const { springBootAxiosInstance, auth } = useContext(AuthContext);

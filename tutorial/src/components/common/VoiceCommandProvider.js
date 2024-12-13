@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';  // 필요시 AuthContext도 사용할 수 있습니다
+import { AuthContext } from '../../context/AuthContext';  // 필요시 AuthContext도 사용할 수 있습니다
 
 export const VoiceCommandContext = createContext();
 
