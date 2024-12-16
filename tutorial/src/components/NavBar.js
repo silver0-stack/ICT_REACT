@@ -11,8 +11,8 @@ const NavBar = () => {
 
 
   useEffect(() => {
-     // 프로필 이미지가 변경될 때 NavBar 업데이트
-     const fetchProfileImage = async () => {
+    // 프로필 이미지가 변경될 때 NavBar 업데이트
+    const fetchProfileImage = async () => {
       if (auth.user && auth.user.memUuid) {
         try {
           const response = await springBootAxiosInstance.get(
@@ -53,10 +53,13 @@ const NavBar = () => {
               <Nav.Link as={Link} to="/">Home</Nav.Link>
               <Nav.Link as={Link} to="/notices">공지사항</Nav.Link>
               {auth.user && auth.user.memType === 'ADMIN' && (
+                <>
                 <Nav.Link as={Link} to="/notices/add">공지사항 추가</Nav.Link>
+                <Nav.Link as={Link} to="/admin/members">회원 관리</Nav.Link>
+                </>
               )}
               <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
-              <Dropdown align="end">
+              <Dropdown align="end">ㅁ
                 <Dropdown.Toggle variant="light" id="dropdown-basic">
                   <Image
                     src={profileImage} // auth.profileImageUrl 사용
