@@ -183,7 +183,7 @@ const Companion = () => {
           chat.map((msg, index) => (
             <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
           ))
-        )};
+        )}
 
       </div>
     </div>
