@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { VoiceCommandContext } from '../components/common/VoiceCommandProvider';
+import cat from '../assets/images/cutecat.gif';
 
 const Companion = () => {
   const [message, setMessage] = useState('');
@@ -14,19 +15,19 @@ const Companion = () => {
   const { isListening, handleStartListening } = useContext(VoiceCommandContext); // VoiceCommandContext에서 가져오기
 
   // 로그인한 사용자의 워크스페이스를 조회하는 함수
-  const fetchWorkspace = async() => {
-    try{
+  const fetchWorkspace = async () => {
+    try {
       const response = await springBootAxiosInstance.get(`/api/workspace/${auth.user.memUuid}`);
       const { data } = response.data; // API 응답에서 워크스페이스 데이터 추출
-      if(data){
+      if (data) {
         setWorkspaceId(data.workspaceId);
         console.log("워크스페이스 ID 조회 성공:", data.workspaceId);
-      }else{
-        if(response.message){
-          console.error(response.message|| '워크스페이스가 존재하지 않습니다.');
+      } else {
+        if (response.message) {
+          console.error(response.message || '워크스페이스가 존재하지 않습니다.');
         }
       }
-    }catch(error){
+    } catch (error) {
       console.error("워크세페이스 조회 중 오류 발생:", error);
     }
   };
@@ -35,19 +36,19 @@ const Companion = () => {
 
   // 워크스페이스 ID를 이용해 전체 채팅 기록을 가져오는 함수
   const fetchChatHistory = async (workspaceId) => {
-    try{
+    try {
       const response = await springBootAxiosInstance.get(`/api/chat/history/${workspaceId}`);
       const { data } = response.data; // 채팅 데이터 추출
-      if(data){
+      if (data) {
         setChat(data.map((msg) => ({
           sender: msg.msgSenderRole,
           text: msg.msgContent,
         })));
         console.log("채팅 불러오기 성공:", data);
-      }else{
+      } else {
         console.log("조회된 채팅 기록이 없습니다.");
       }
-    }catch(error){
+    } catch (error) {
       console.error("채팅 기록 조회 중 오류 발생:", error);
     }
   };
@@ -56,7 +57,7 @@ const Companion = () => {
 
   // 컴포넌트 마운트 시 워크세페이스 조회 및 채팅 기록 로드
   useEffect(() => {
-    if(auth.user && auth.user.memUuid){
+    if (auth.user && auth.user.memUuid) {
       fetchWorkspace();
     }
   }, [auth.user]);
@@ -64,7 +65,7 @@ const Companion = () => {
 
   // 워크스페이스 ID가 변경되면 채팅 기록 로드
   useEffect(() => {
-    if(workspaceId){
+    if (workspaceId) {
       fetchChatHistory(workspaceId)
     }
   }, [workspaceId]);
@@ -140,6 +141,19 @@ const Companion = () => {
     };
   }, [isListening, recognition]);
 
+
+  const EmptyChatPlaceholder = () => (
+    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <img
+        src= {cat} // 귀여운 이미지 URL로 교체
+        alt="텅"
+        style={{ width: '200px', height: '200px', marginBottom: '20px' }}
+      />
+      <h1 style={{ color: '#888', fontSize: '24px' }}>텅</h1>
+    </div>
+  );
+
+
   return (
     <div>
       <h2>말동무 서비스</h2>
@@ -163,9 +177,14 @@ const Companion = () => {
 
 
       <div>
-        {chat.map((msg, index) => (
-          <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
-        ))}
+        {chat.length === 0 ? (
+          <EmptyChatPlaceholder />
+        ) : (
+          chat.map((msg, index) => (
+            <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
+          ))
+        )};
+
       </div>
     </div>
   );
