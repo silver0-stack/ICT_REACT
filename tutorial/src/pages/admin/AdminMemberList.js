@@ -1,4 +1,4 @@
-// src/page/admin/AdminMemberList.js
+// src/pages/admin/AdminMemberList.js
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
@@ -36,10 +36,38 @@ const AdminMemberList = () => {
     if (loading) return <div>Loading ...</div>
 
 
-    return(
-        
+    return (
+        <div>
+            <h1>회원 목록</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>UUID</th>
+                        <th>아이디</th>
+                        <th>이름</th>
+                        <th>타입</th>
+                        <th>상태</th>
+                        <th>상세보기</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {members.map((member) => (
+                        <tr key={member.memUuid} >
+                            <td>{member.memUuid}</td>
+                            <td>{member.memId}</td>
+                            <td>{member.memName}</td>
+                            <td>{member.memType}</td>
+                            <td>{member.memStatus}</td>
+                            <td>
+                                <button onClick={() => handleMemberClick(member.memUuid)}>보기</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 
+};
 
-
-}
+export default AdminMemberList;

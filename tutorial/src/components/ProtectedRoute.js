@@ -11,7 +11,7 @@ import { Navigate} from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 // ProtectedRoute 컴포넌트 정의
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, roles = [] }) => {
     // AuthContext에서 auth 상태를 가져옴
     const { auth } = useContext(AuthContext);
 
@@ -24,6 +24,9 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to ="/login" replace />;
     }
 
+    if(roles.length > 0 && !roles.includes(auth.user.memType)){
+        return <Navigate to="/" />
+    }
     // 인증된 사용자인 경우, 자식 컴포넌트를 렌더링
     return children;
 };

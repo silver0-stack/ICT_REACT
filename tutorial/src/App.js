@@ -24,79 +24,100 @@ import NoticeAddForm from './pages/notice/NoticeAddForm';
 
 import { VoiceCommandProvider } from './components/common/VoiceCommandProvider';  // Context import
 
+
+import AdminMemberList from "./pages/admin/AdminMemberList";
+import AdminMemberDetail from "./pages/admin/AdminMemberDetail";
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-      <VoiceCommandProvider>
-        <Navbar />
-        <div style={{ minHeight: "80vh", padding: "20px" }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<h1>About Us</h1>} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login-response" element={<LoginResponse />} />
-            <Route path="/signup-response" element={<SignUpResponse />} />
-            {/* 보호된 라우트 예시 */}
-            <Route
-              path="/mypage"
-              element={
-                <ProtectedRoute>
-                  <MyPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <h1>Dashboard</h1>
-                </ProtectedRoute>
-              }
-            />
+        <VoiceCommandProvider>
+          <Navbar />
+          <div style={{ minHeight: "80vh", padding: "20px" }}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<h1>About Us</h1>} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/login-response" element={<LoginResponse />} />
+              <Route path="/signup-response" element={<SignUpResponse />} />
+              {/* 보호된 라우트 예시 */}
+              <Route
+                path="/mypage"
+                element={
+                  <ProtectedRoute>
+                    <MyPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <h1>Dashboard</h1>
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/companion"
-              element={
-                <ProtectedRoute>
-                  <Companion />
-                </ProtectedRoute>
-              } />
-            <Route
-              path="/notices" element={
-                <ProtectedRoute>
-                  <NoticeList />
-                </ProtectedRoute>
-              } />
-            <Route
-              path="/notices/:notId" element={
-                <ProtectedRoute>
-                  <NoticeDetail />
-                </ProtectedRoute>
-              } />
-            <Route
-              path="/notices/add" element={
-                <ProtectedRoute>
-                  <NoticeAddForm />
-                </ProtectedRoute>
-              } />
-            <Route
-              path="/notices/edit/:notId"
-              element={
-                <ProtectedRoute>
-                  <NoticeAddForm />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/companion"
+                element={
+                  <ProtectedRoute>
+                    <Companion />
+                  </ProtectedRoute>
+                } />
+              <Route
+                path="/notices" element={
+                  <ProtectedRoute>
+                    <NoticeList />
+                  </ProtectedRoute>
+                } />
+              <Route
+                path="/notices/:notId" element={
+                  <ProtectedRoute>
+                    <NoticeDetail />
+                  </ProtectedRoute>
+                } />
+              <Route
+                path="/notices/add" element={
+                  <ProtectedRoute>
+                    <NoticeAddForm />
+                  </ProtectedRoute>
+                } />
+              <Route
+                path="/notices/edit/:notId"
+                element={
+                  <ProtectedRoute>
+                    <NoticeAddForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 관리자 전용 라우트 */}
+              <Route
+                path="/admin/members"
+                element={
+                  <ProtectedRoute roles={["ADMIN"]}>
+                    <AdminMemberList />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/members/:memUuid"
+                element={
+                  <ProtectedRoute roles={["ADMIN"]}>
+                    <AdminMemberDetail />
+                  </ProtectedRoute>
+                }
+              />
+
+            </Routes>
 
 
-          </Routes>
-
-
-        </div>
-        <Footer />
-      </VoiceCommandProvider>
+          </div>
+          <Footer />
+        </VoiceCommandProvider>
       </Router>
     </AuthProvider>
   );
