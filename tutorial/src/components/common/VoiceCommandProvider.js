@@ -42,16 +42,47 @@ export const VoiceCommandProvider = ({ children }) => {
     } else {
       // 시작 시 MediaRecorder 시작
       const recorder = new MediaRecorder(stream);
+      console.log("Recorder 상태:", recorder.state);
+
+
+      // 말동무   : STT (말 -> 텍스트)
+
+      // 페이지 전환: 말 -> FLASK 서버에서 키워드로 판단 (공지사항, 홈)
+      // <녹음한 파일 FAKLSK 전달!!!!> -- 생략 
+      // <
+      // FLASK에서 STT 를 써요
+      // 텍스트에 키워드 존재 여부확인 
+      // 공지사항 있으면 /NOTICES 
+ 
+
+
+      // 텍스트로 
+
+      recorder.onstart = () => {
+        console.log("Recorder 상태:", recorder.state); // 'recording'이어야 함
+      };
+
+      recorder.start();
+      console.log("Recorder 시작 후 상태:", recorder.state); // 'recording'이어야 함
+
       setMediaRecorder(recorder);
       const chunks = [];
 
       recorder.ondataavailable = (event) => {
+        console.log("받은 데이터:", event.data);
         chunks.push(event.data);
       };
 
       recorder.onstop = async () => {
+        console.log("녹음 종료, 데이터 개수:", chunks.length);
         const audioBlob = new Blob(chunks, { type: 'audio/wav' });
-        await sendAudioToServer(audioBlob);
+        console.log("생성된 Blob 크기:", audioBlob.size);
+
+        if (audioBlob.size > 0) {
+          await sendAudioToServer(audioBlob);
+        } else {
+          console.error("녹음 데이터가 비어 있습니다.");
+        }
       };
 
       recorder.start();
@@ -67,11 +98,13 @@ export const VoiceCommandProvider = ({ children }) => {
 
     try {
       const response = await flaskAxiosInstance.post('/page-stt', formData);
+      console.log("서버 응답:", response.data);
+
       if (response.status === 200 && response.data.redirect) {
         navigate(response.data.redirect);  // 서버에서 전달된 페이지로 이동
       }
     } catch (error) {
-      console.error('음성 인식 실패:', error);
+      console.error('서버와의 연결에 실패했습니다:', error.response || error);
       alert('서버와의 연결에 실패했습니다. 다시 시도해주세요.');
     }
   };
