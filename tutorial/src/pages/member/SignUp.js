@@ -31,6 +31,10 @@ const SignUp = () => {
   })
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // 로딩 상태 추가
+  
+  const [isIdChecked, setIdChecked] = useState(false); // ID 중복 체크 여부 상태
+
+
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -38,6 +42,10 @@ const SignUp = () => {
       setFormData({ ...formData, photoFile: files[0] });
     } else {
       setFormData({ ...formData, [name]: value });
+    }
+
+    if(name === 'memId'){
+      setIdChecked(false); // ID가 변경되면 중복 체크 상태 초기화
     }
   };
 
@@ -53,8 +61,10 @@ const SignUp = () => {
 
       if (idCheckResponse.data.data === 'dup') {
         setError('이미 사용 중인 ID입니다.');
+        setIdChecked(false); // 중복된 경우 체크 실패
       } else {
         setError('사용 가능한 ID입니다.');
+        setIdChecked(true); // 중복 체크 통과한 경우 중복 체크 완료
       }
     } catch (err) {
       console.error(err);
@@ -65,6 +75,11 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); //폼 제출 시 페이지 새로고침을 방지 -> 비동기적 요청 위함
+
+    if(!isIdChecked){ // 중복 체크 완료 여부 확인
+      alert("아이디 중복 체크를 완료해주세요.");
+      return;
+    }
     setLoading(true); // 로딩 시작
 
     // 회원가입 데이터 준비
