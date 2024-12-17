@@ -1,25 +1,24 @@
-// src/pages/admin/AdminMemberDetail.js
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
+import { Card, CardContent, CardMedia, Typography, Button, Box, CircularProgress } from "@mui/material";
 
 const AdminMemberDetail = () => {
     const { memUuid } = useParams();
     const [member, setMember] = useState(null);
+    const [profileImage, setProfileImage] = useState('/default-profile.png'); // 기본 이미지 설정
     const [loading, setLoading] = useState(true);
     const { springBootAxiosInstance } = useContext(AuthContext);
 
     useEffect(() => {
         fetchMemberDetails();
+        fetchProfileImage();
     }, [memUuid]);
 
+    // 회원 정보 조회
     const fetchMemberDetails = async () => {
         try {
-            //! await를 빠뜨리면 비동기 함수의 결과가 아직 반환되지 않은 상태에서 코드를 진행하기 때문에, 
-            //! response.data가 정의되지 않은 상태로 접근하려다 에러가 발생했을 것이다.
             const response = await springBootAxiosInstance.get(`/api/members/${memUuid}`);
-            //^ response.data = { success, message, data 의 모든 JSON 서버 응답 }
-            //^ response.data.data = { data 값. 즉, 메타데이터를 제외한 실제 데이터 }
             setMember(response.data.data);
         } catch (error) {
             console.error("Error fetching member details:", error);
@@ -28,24 +27,87 @@ const AdminMemberDetail = () => {
         }
     };
 
+    // 프로필 이미지 조회
+    const fetchProfileImage = async () => {
+        try {
+            const response = await springBootAxiosInstance.get(
+                `/api/profile-pictures/${memUuid}`,
+                { responseType: 'blob' } // 이미지 데이터를 Blob 형태로 가져옴
+            );
+            const imageUrl = URL.createObjectURL(response.data); // Blob 데이터를 URL로 변환
+            setProfileImage(imageUrl);
+        } catch (error) {
+            console.error("Error fetching profile image:", error);
+            setProfileImage('/default-profile.png'); // 오류 시 기본 이미지 설정
+        }
+    };
 
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
 
-    if (loading) return <div>Loading...</div>;
-    if (!member) return <div>회원 정보를 불러오지 못했습니다.</div>;
-
+    if (!member) {
+        return (
+            <Box textAlign="center" mt={4}>
+                <Typography variant="h6" color="error">
+                    회원 정보를 불러오지 못했습니다.
+                </Typography>
+            </Box>
+        );
+    }
 
     return (
-        <div>
-            <div>회원 상세 정보</div>
-            <p><strong>UUID:</strong> {member.memUuid}</p>
-            <p><strong>아이디:</strong> {member.memId}</p>
-            <p><strong>이름:</strong> {member.memName}</p>
-            <p><strong>이메일:</strong> {member.memEmail}</p>
-            <p><strong>주소:</strong> {member.memAddress}</p>
-            <p><strong>상태:</strong> {member.memStatus}</p>
-            <p><strong>가입일:</strong> {member.memEnrollDate}</p>
-            <button onClick={() => window.history.back()}>뒤로 가기</button>
-        </div>
+        <Box display="flex" justifyContent="center" mt={5}>
+            <Card sx={{ maxWidth: 500, boxShadow: 3 }}>
+                {/* CardMedia: 프로필 이미지 */}
+                <CardMedia
+                    component="img"
+                    height="300"
+                    image={profileImage}
+                    alt="Profile Image"
+                    onError={(e) => { e.target.onerror = null; e.target.src = '/default-profile.png'; }} // 이미지 오류 처리
+                />
+                <CardContent>
+                    <Typography variant="h5" component="div" gutterBottom>
+                        회원 상세 정보
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                        <strong>UUID:</strong> {member.memUuid}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                        <strong>아이디:</strong> {member.memId}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                        <strong>이름:</strong> {member.memName}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                        <strong>이메일:</strong> {member.memEmail}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                        <strong>주소:</strong> {member.memAddress}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                        <strong>상태:</strong> {member.memStatus}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                        <strong>가입일:</strong> {member.memEnrollDate}
+                    </Typography>
+                    <Box mt={3} textAlign="center">
+                        <Button 
+                            variant="contained" 
+                            color="primary" 
+                            onClick={() => window.history.back()}
+                        >
+                            뒤로 가기
+                        </Button>
+                    </Box>
+                </CardContent>
+            </Card>
+        </Box>
     );
 };
 

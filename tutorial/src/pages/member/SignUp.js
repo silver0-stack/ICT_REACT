@@ -7,7 +7,7 @@
 
 
 import React, { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Form, Link, useNavigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
@@ -26,27 +26,27 @@ const SignUp = () => {
     memCellphone: '',
     memPhone: '',
     memRnn: '',
-    // 기타 필요한 필드 추가...
-    photoFile: null,
   })
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // 로딩 상태 추가
-  
-  const [isIdChecked, setIdChecked] = useState(false); // ID 중복 체크 여부 상태
 
+  const [isIdChecked, setIdChecked] = useState(false); // ID 중복 체크 여부 상태
+  const [photoFile, setPhotoFile] = useState(null); // 프로필 이미지 파일 상태
+  const [profilePreview, setProfilePreview] = useState('/default-profile.png'); // 프로필 사진 미리보기 URL
 
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'photoFile') {
-      setFormData({ ...formData, photoFile: files[0] });
+      const file = files[0];
+      setPhotoFile(file);
+      setProfilePreview(URL.createObjectURL(file)); // 이미지 미리보기
     } else {
       setFormData({ ...formData, [name]: value });
     }
 
-    if(name === 'memId'){
-      setIdChecked(false); // ID가 변경되면 중복 체크 상태 초기화
-    }
+    if (name === 'memId') setIdChecked(false); // ID가 변경되면 중복 체크 상태 초기화
+
   };
 
   const handleCheckId = async () => {
@@ -73,71 +73,72 @@ const SignUp = () => {
   };
 
 
+
+  // 회원가입 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault(); //폼 제출 시 페이지 새로고침을 방지 -> 비동기적 요청 위함
 
-    if(!isIdChecked){ // 중복 체크 완료 여부 확인
+    if (!isIdChecked) { // 중복 체크 완료 여부 확인
       alert("아이디 중복 체크를 완료해주세요.");
       return;
     }
     setLoading(true); // 로딩 시작
 
-    // 회원가입 데이터 준비
-    const data = new FormData();
-    data.append('memId', formData.memId);
-    data.append('memPw', formData.memPw);
-    data.append('memName', formData.memName);
-    data.append('memType', formData.memType);
-    data.append('memEmail', formData.memEmail);
-    data.append('memAddress', formData.memAddress);
-    data.append('memCellphone', formData.memCellphone);
-    data.append('memPhone', formData.memPhone);
-    data.append('memRnn', formData.memRnn);
-    // 기타 필요한 필드 추가...
-
-
-
     try {
-      // 회원가입 요청 (프로필 사진 제외)
-      const response = await springBootAxiosInstance.post('/api/members/enroll', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      //* 1. 회원가입 요청 (사진 제외)
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value); // formData에 추가
       });
 
-      if (response.data.success) {
-        const member = response.data.data;
-        toast.success('회원가입이 완료되었습니다.');
 
-        // 프로필 사진 업로드 (필요 시)
-        if(formData.photoFile){
-          try{
-            const response = await springBootAxiosInstance.post(`/api/profile-pictures/${member.memUuid}`, formData.photoFile, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-            });
-
-            if(response.data.success){
-              toast.success('프로필 사진이 성공적으로 업로드되었습니다.');
-            }else{
-              toast.error(response.data.message || '프로필 사진 업로드에 실패했습니다.');
-            }
-          }catch(err){
-            console.error(err);
-            toast.error('프로필 사진 업로드 중 오류가 발생했습니다.');
-          }
-        }
-        // 회원가입 후 리다이렉트
-        navigate('/signup-response', { state: { message: '회원가입이 완료되었습니다. 로그인해주세요.' } });
-      } else {
-        setError(response.data.message || '회원가입에 실패했습니다.');
+      // 회원가입 요청 (프로필 사진 제외)
+      const response = await springBootAxiosInstance.post('/api/members/enroll', formDataToSend);
+      if (!response.data.success) {
+        throw new Error(response.data.message || '회원가입에 실패했습니다.');
       }
+
+      const memUuid = response.data?.data?.memUuid; // 서버로부터 memUuid 받아오기
+      if (!memUuid) {
+        throw new Error('서버로부터 memUuid를 받지 못했습니다.');
+      }
+
+      //* 2. 프로필 이미지 업로드 요청
+      if (photoFile) {
+        const profileFormData = new FormData();
+        profileFormData.append('photoFile', photoFile);
+
+        const uploadResponse = await springBootAxiosInstance.post(
+          `/api/profile-pictures/${memUuid}`,
+          profileFormData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+
+        if (!uploadResponse.data.success) {
+          throw new Error(uploadResponse.data.message || '프로필 사진 업로드 실패');
+        }
+
+        toast.success('프로필 사진이 성공적으로 업로드되었습니다.');
+      }
+
+      toast.success('회원가입이 완료되었습니다.');
+      navigate('/signup-response', { state: { message: '회원가입이 완료되었습니다. 로그인해주세요.' } });
     } catch (error) {
       console.error(error);
       setError(error.response?.data?.message || '회원가입 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
     }
   };
+
+
+  // 프로필 이미지 삭제 핸들러
+  const handleDeleteProfileImage = () => {
+    setPhotoFile(null);
+    setProfilePreview('/default-profile.png'); // 기본 이미지로 설정
+    toast.info('프로필 이미지가 삭제되었습니다.');
+  };
+
 
   return (
     <div className="auth-container">
@@ -280,18 +281,19 @@ const SignUp = () => {
         {/* 프로필 사진 */}
         <div className="form-group">
           <label>Profile Photo:</label>
-          <input
-            type="file"
-            name="photoFile"
-            accept=".jpg, .jpeg, .png, .gif"
-            onChange={handleChange}
-            className="form-control"
-          />
+          <div>
+            <img src={profilePreview} alt="Profile Preview" style={{ width: '100px', borderRadius: '50%' }} />
+          </div>
+          <input type="file" name="photoFile" accept="image/*" onChange={handleChange} />
+          {photoFile && (
+            <button type="button" onClick={handleDeleteProfileImage} className="btn btn-danger mt-2">
+              프로필 사진 삭제
+            </button>
+          )}
         </div>
 
-        {/* 제출 버튼 */}
-        <button type="submit" className="btn btn-primary mt-3">
-          Sign Up
+        <button type="submit" className="btn btn-primary mt-3" disabled={loading}>
+          {loading ? '처리 중...' : 'Sign Up'}
         </button>
       </form>
       <p className="mt-3">

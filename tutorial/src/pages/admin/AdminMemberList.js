@@ -1,111 +1,120 @@
-// src/pages/admin/AdminMemberList.js
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from "../../context/AuthContext";
+import { useTable } from "react-table";
+import ReactPaginate from "react-paginate";
+import styles from "./AdminMemberList.module.css";
 
 const AdminMemberList = () => {
-    const { auth, logout, springBootAxiosInstance } = useContext(AuthContext);
+    const { springBootAxiosInstance } = useContext(AuthContext);
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [totalPages, setTotalPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const navigate = useNavigate();
-
 
     useEffect(() => {
         fetchMembers(currentPage);
     }, [currentPage]);
 
-
-
     const fetchMembers = async (page = 1, limit = 10) => {
         setLoading(true);
         try {
-            const response = await springBootAxiosInstance.get(`/api/members?page=${page}&limit=${limit}&sort=memEnrollDate,desc`);
-            const nonAdminMembers = response.data.data.content.filter(member => member.memType !== "ADMIN");
-            setMembers(nonAdminMembers); // 관리자를 제외한 멤버를 상태변수 설정
-            setTotalPages(response.data.data.totalPages); // 총 페이지 수 설정
+            const response = await springBootAxiosInstance.get(
+                `/api/members?page=${page}&limit=${limit}&sort=memEnrollDate,desc`
+            );
+            const nonAdminMembers = response.data.data.content.filter(
+                (member) => member.memType !== "ADMIN"
+            );
+            setMembers(nonAdminMembers);
+            setTotalPages(response.data.data.totalPages);
         } catch (error) {
             console.error("멤버를 조회해오면서 에러 발생: ", error);
         } finally {
-            setLoading(false); // 조회 성공 혹은 실패 후에 로딩 종료함으로써 로딩 출력 안 함
+            setLoading(false);
         }
     };
 
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-        }
+    const handlePageChange = (event) => {
+        const selectedPage = event.selected + 1;
+        setCurrentPage(selectedPage);
     };
-
 
     const handleMemberClick = (memUuid) => {
         navigate(`/admin/members/${memUuid}`);
     };
 
-    if (loading) return <div>Loading ...</div>
+    const columns = React.useMemo(
+        () => [
+            { Header: "UUID", accessor: "memUuid" },
+            { Header: "아이디", accessor: "memId" },
+            { Header: "이름", accessor: "memName" },
+            { Header: "타입", accessor: "memType" },
+            { Header: "상태", accessor: "memStatus" },
+            {
+                Header: "상세보기",
+                Cell: ({ row }) => (
+                    <button onClick={() => handleMemberClick(row.original.memUuid)}>
+                        보기
+                    </button>
+                ),
+            },
+        ],
+        []
+    );
 
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+        useTable({ columns, data: members });
+
+    if (loading) return <div>Loading...</div>;
 
     return (
         <div>
             <h1>회원 목록</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>UUID</th>
-                        <th>아이디</th>
-                        <th>이름</th>
-                        <th>타입</th>
-                        <th>상태</th>
-                        <th>상세보기</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {members.map((member) => (
-                        <tr key={member.memUuid} >
-                            <td>{member.memUuid}</td>
-                            <td>{member.memId}</td>
-                            <td>{member.memName}</td>
-                            <td>{member.memType}</td>
-                            <td>{member.memStatus}</td>
-                            <td>
-                                <button onClick={() => handleMemberClick(member.memUuid)}>보기</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            {/* 페이지네이션 UI */}
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-                <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                >
-                    이전
-                </button>
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                        key={index + 1}
-                        onClick={() => handlePageChange(index + 1)}
-                        style={{
-                            margin: "0 5px",
-                            backgroundColor: currentPage === index + 1 ? "lightblue" : "white",
-                        }}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
-                <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
-                    다음
-                </button>
+            {/* React Table */}
+            <div className={styles["table-container"]}>
+                <table {...getTableProps()} className={styles.table}>
+                    <thead>
+                        {headerGroups.map((headerGroup) => (
+                            <tr {...headerGroup.getHeaderGroupProps()}>
+                                {headerGroup.headers.map((column) => (
+                                    <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                                ))}
+                            </tr>
+                        ))}
+                    </thead>
+                    <tbody {...getTableBodyProps()}>
+                        {rows.map((row) => {
+                            prepareRow(row);
+                            return (
+                                <tr {...row.getRowProps()}>
+                                    {row.cells.map((cell) => (
+                                        <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                                    ))}
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
             </div>
+
+            {/* ReactPaginate UI */}
+            <ReactPaginate
+                previousLabel={"이전"}
+                nextLabel={"다음"}
+                breakLabel={"..."}
+                breakClassName={styles["break-me"]}
+                pageCount={totalPages}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={5}
+                onPageChange={handlePageChange}
+                containerClassName={styles.pagination}
+                activeClassName={styles.active}
+                disabledClassName={styles.disabled}
+                forcePage={currentPage - 1}
+            />
         </div>
     );
-
 };
 
 export default AdminMemberList;
