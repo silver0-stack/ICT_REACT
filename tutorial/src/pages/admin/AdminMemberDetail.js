@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from '../../context/AuthContext';
 import { Card, CardContent, CardMedia, Typography, Button, Box, CircularProgress } from "@mui/material";
 
@@ -9,11 +9,14 @@ const AdminMemberDetail = () => {
     const [profileImage, setProfileImage] = useState('/default-profile.png'); // 기본 이미지 설정
     const [loading, setLoading] = useState(true);
     const { springBootAxiosInstance } = useContext(AuthContext);
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         fetchMemberDetails();
         fetchProfileImage();
     }, [memUuid]);
+
 
     // 회원 정보 조회
     const fetchMemberDetails = async () => {
@@ -41,6 +44,23 @@ const AdminMemberDetail = () => {
             setProfileImage('/default-profile.png'); // 오류 시 기본 이미지 설정
         }
     };
+
+
+    // 회원 삭제 핸들러
+    const handleDeleteMember = async() => {
+        if(window.confirm("정말로 이 회원을 삭제하시겠습니까?")){
+            try{
+                await springBootAxiosInstance.delete(`/api/members/${memUuid}`);
+                alert("회원이 삭제되었습니다.");
+                navigate("/admin/members"); // 삭제 후 목록 페이지로 이동
+            }catch(error){
+                console.error("Error deleting member:", error);
+                alert("회원 삭제에 실패했습니다.");
+            }
+        }
+    };
+
+
 
     if (loading) {
         return (
@@ -103,6 +123,9 @@ const AdminMemberDetail = () => {
                             onClick={() => window.history.back()}
                         >
                             뒤로 가기
+                        </Button>
+                        <Button variant="contained" color="error" onClick={handleDeleteMember} sx={{ ml: 2 }}>
+                            삭제하기
                         </Button>
                     </Box>
                 </CardContent>
