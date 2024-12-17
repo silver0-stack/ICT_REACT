@@ -4,41 +4,47 @@ import { AuthContext } from '../../context/AuthContext';
 import { Card, CardContent, CardMedia, Typography, Button, Box, CircularProgress } from "@mui/material";
 
 const AdminMemberDetail = () => {
+    //! useParams(): 동적 URL 세그먼트(memUuid)를 가졍오는 훅
     const { memUuid } = useParams();
-    const [member, setMember] = useState(null);
-    const [profileImage, setProfileImage] = useState('/default-profile.png'); // 기본 이미지 설정
-    const [loading, setLoading] = useState(true);
+
+    // 상태(state)를 활용해 데이터를 저장하고 컴포넌트 재렌더링
+    const [member, setMember] = useState(null); // 회원 정보 저장
+    const [profileImage, setProfileImage] = useState('/default-profile.png'); // 기본 프로필 이미지 설정
+    const [loading, setLoading] = useState(true); // 로딩상태
+
+    //! AuthContext에서 springBootAxiosInstance를 가져와 JWT 인증이 포함된 요청을 수행
     const { springBootAxiosInstance } = useContext(AuthContext);
     const navigate = useNavigate();
 
 
+    //* useEffect: 컴포넌트 마운트 시 API 호출 (의존성 배열: [memUuid])
     useEffect(() => {
-        fetchMemberDetails();
-        fetchProfileImage();
+        fetchMemberDetails(); // 회원 정보 API 호출
+        fetchProfileImage(); // 프로필 이미지 API 호출
     }, [memUuid]);
 
 
-    // 회원 정보 조회
+    // 회원 상세 정보 가져오기
     const fetchMemberDetails = async () => {
         try {
             const response = await springBootAxiosInstance.get(`/api/members/${memUuid}`);
-            setMember(response.data.data);
+            setMember(response.data.data); // 성공 시 데이터 설정
         } catch (error) {
             console.error("Error fetching member details:", error);
         } finally {
-            setLoading(false);
+            setLoading(false); // 로딩 상태 종료
         }
     };
 
-    // 프로필 이미지 조회
+    // 프로필 이미지 Blob 데이터를 가져오기
     const fetchProfileImage = async () => {
         try {
             const response = await springBootAxiosInstance.get(
                 `/api/profile-pictures/${memUuid}`,
-                { responseType: 'blob' } // 이미지 데이터를 Blob 형태로 가져옴
+                { responseType: 'blob' } // Blob 형태로 응답 받음
             );
-            const imageUrl = URL.createObjectURL(response.data); // Blob 데이터를 URL로 변환
-            setProfileImage(imageUrl);
+            const imageUrl = URL.createObjectURL(response.data); // Blob 데이터를 브라우저 URL로 변환
+            setProfileImage(imageUrl); // 이미지 설정
         } catch (error) {
             console.error("Error fetching profile image:", error);
             setProfileImage('/default-profile.png'); // 오류 시 기본 이미지 설정
@@ -47,13 +53,13 @@ const AdminMemberDetail = () => {
 
 
     // 회원 삭제 핸들러
-    const handleDeleteMember = async() => {
-        if(window.confirm("정말로 이 회원을 삭제하시겠습니까?")){
-            try{
+    const handleDeleteMember = async () => {
+        if (window.confirm("정말로 이 회원을 삭제하시겠습니까?")) {
+            try {
                 await springBootAxiosInstance.delete(`/api/members/${memUuid}`);
                 alert("회원이 삭제되었습니다.");
                 navigate("/admin/members"); // 삭제 후 목록 페이지로 이동
-            }catch(error){
+            } catch (error) {
                 console.error("Error deleting member:", error);
                 alert("회원 삭제에 실패했습니다.");
             }
@@ -62,6 +68,7 @@ const AdminMemberDetail = () => {
 
 
 
+    // 로딩 상태 표시
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
@@ -70,6 +77,7 @@ const AdminMemberDetail = () => {
         );
     }
 
+    // 데이터가 없는 경우 처리
     if (!member) {
         return (
             <Box textAlign="center" mt={4}>
@@ -117,9 +125,9 @@ const AdminMemberDetail = () => {
                         <strong>가입일:</strong> {member.memEnrollDate}
                     </Typography>
                     <Box mt={3} textAlign="center">
-                        <Button 
-                            variant="contained" 
-                            color="primary" 
+                        <Button
+                            variant="contained"
+                            color="primary"
                             onClick={() => window.history.back()}
                         >
                             뒤로 가기

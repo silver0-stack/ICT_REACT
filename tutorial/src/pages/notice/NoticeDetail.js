@@ -119,6 +119,9 @@ const NoticeDetail = () => {
             console.error("파일 다운로드 중 오류 발생:", error);
         }
     };
+
+
+    
     // 데이터를 비동기로 로드하는 동안 로딩 처리
     if (loading) {
         return (
