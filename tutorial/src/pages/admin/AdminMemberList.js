@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { useTable } from "react-table";
@@ -40,9 +40,12 @@ const AdminMemberList = () => {
         setCurrentPage(selectedPage);
     };
 
-    const handleMemberClick = (memUuid) => {
-        navigate(`/admin/members/${memUuid}`);
-    };
+    const handleMemberClick = useCallback(
+        (memUuid) => {
+            navigate(`/admin/members/${memUuid}`);
+        },
+        [navigate]
+    );
 
     const columns = React.useMemo(
         () => [
@@ -60,7 +63,7 @@ const AdminMemberList = () => {
                 ),
             },
         ],
-        []
+        [handleMemberClick]
     );
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -75,26 +78,46 @@ const AdminMemberList = () => {
             <div className={styles["table-container"]}>
                 <table {...getTableProps()} className={styles.table}>
                     <thead>
-                        {headerGroups.map((headerGroup) => (
-                            <tr {...headerGroup.getHeaderGroupProps()}>
-                                {headerGroup.headers.map((column) => (
-                                    <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-                                ))}
-                            </tr>
-                        ))}
-                    </thead>
-                    <tbody {...getTableBodyProps()}>
-                        {rows.map((row) => {
-                            prepareRow(row);
+                        {headerGroups.map((headerGroup) => {
+                            const { key: headerKey, ...headerProps } = headerGroup.getHeaderGroupProps();
                             return (
-                                <tr {...row.getRowProps()}>
-                                    {row.cells.map((cell) => (
-                                        <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                                    ))}
+                                <tr key={headerKey} {...headerProps}>
+                                    <th>번호</th>{/* 번호 컬럼 추가 */}
+                                    {headerGroup.headers.map((column) => {
+                                        const { key: columnKey, ...columnProps } = column.getHeaderProps();
+                                        return (
+                                            <th key={columnKey} {...columnProps}>
+                                                {column.render("Header")}
+                                            </th>
+                                        );
+                                    })}
+                                </tr>
+                            );
+                        })}
+                    </thead>
+
+                    <tbody {...getTableBodyProps()}>
+                        {rows.map((row, index) => {
+                            prepareRow(row);
+                            const { key: rowKey, ...rowProps } = row.getRowProps();
+                            const rowNumber = (currentPage - 1) * 10 + index + 1; // 페이지 기반 번호
+
+                            return (
+                                <tr key={rowKey} {...rowProps}>
+                                    <td>{rowNumber}</td>{/* 번호 컬럼 */}
+                                    {row.cells.map((cell) => {
+                                        const { key: cellKey, ...cellProps } = cell.getCellProps();
+                                        return (
+                                            <td key={cellKey} {...cellProps}>
+                                                {cell.render("Cell")}
+                                            </td>
+                                        );
+                                    })}
                                 </tr>
                             );
                         })}
                     </tbody>
+
                 </table>
             </div>
 
