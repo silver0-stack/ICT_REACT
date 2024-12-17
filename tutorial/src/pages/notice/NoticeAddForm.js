@@ -22,6 +22,7 @@ const NoticeAddForm = () => {
     console.log('수정 모드인가?: ', isEditMode);
     const initialForm = location.state || { notTitle: '', notContent: '' }; // 초기값 설정
     const [form, setForm] = useState(initialForm);
+    const [file, setFile] = useState(null); // 첨부 파일 상태
     const [errorMessage, setErrorMessage] = useState(''); // 에러 메시지 상태 추가
 
 
@@ -48,19 +49,41 @@ const NoticeAddForm = () => {
         setForm({ ...form, [name]: value });
     };
 
+    const handleFileChange = (e) => {
+        //& 여러 개 첨부가 가능하도록 수정.
+        setFile(e.target.files[0]); // 첫 번째 파일만 선택??
+    }
     const handleSubmit = async (e) => {
         e.preventDefault(); // 폼 제출 시 새로고침 방지
+    
         try {
-            if (isEditMode) {
-                await springBootAxiosInstance.put(`/api/notices/${notId}`, form);
-            } else {
-                await springBootAxiosInstance.post('/api/notices', form);
+            // Step 1: 공지사항 등록 (POST /api/notices)
+            const noticeResponse = await springBootAxiosInstance.post('/api/notices', {
+                notTitle: form.notTitle,
+                notContent: form.notContent,
+            });
+    
+            // 공지사항 ID 추출
+            const { data: createdNotice } = noticeResponse.data;
+            const noticeId = createdNotice.notId;
+    
+            // Step 2: 파일 업로드 (POST /api/notice-files/{noticeId})
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+    
+                await springBootAxiosInstance.post(`/api/notice-files/${noticeId}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
             }
-            navigate(isEditMode ? `/notices/${notId}` : '/notices'); // 등록인지 수정인지에 따라 다른 페이지 전환
+    
+            // 성공적으로 완료되면 페이지 이동
+            navigate(`/notices/${noticeId}`);
         } catch (error) {
+            // 에러 처리
             if (error.response) {
                 const errorMessage = error.response?.data?.message || '알 수 없는 오류가 발생했습니다.';
-                setErrorMessage(errorMessage); // 화면에 표시
+                setErrorMessage(errorMessage);
                 console.error(`Error ${error.response.status}: ${errorMessage}`);
             } else {
                 setErrorMessage('서버와 통신에 실패했습니다.');
@@ -68,9 +91,10 @@ const NoticeAddForm = () => {
             }
         }
     };
+    
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType='multipart/form-data'>
             <h1>{isEditMode ? '공지사항 수정' : '공지사항 추가'}</h1>
             {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
             <div>
@@ -91,6 +115,14 @@ const NoticeAddForm = () => {
                     onChange={handleChange}
                     required
                 ></textarea>
+            </div>
+            <div>
+                <label>파일 첨부 (선택):</label>
+                <input
+                    type="file"
+                    name="file"
+                    onChange={handleFileChange}
+                />
             </div>
             <button type="submit">{isEditMode ? '수정 완료' : '등록'}</button>
         </form>
